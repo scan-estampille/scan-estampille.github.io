@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estampille Sanitaire CE - Origine Usine & Traçabilité</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col font-sans antialiased m-0">
+
+    <!-- En-tête épuré sur une seule ligne -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2 truncate">
+                <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-xs">
+                    <i data-lucide="scan-line" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="flex items-baseline gap-2 truncate">
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Estampille Sanitaire CE</h1>
+                    <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                    <p class="text-xs text-slate-500 truncate hidden xs:inline sm:inline">Traçabilité & Origine Usine (DGAL)</p>
+                </div>
+            </div>
+            <div class="text-[11px] text-slate-400 shrink-0 font-medium">
+                Règlement (CE) 853/2004
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteneur Principal -->
+    <main class="max-w-4xl mx-auto px-4 py-2.5 sm:py-3 w-full flex flex-col gap-2.5">
+
+        <!-- Barre de recherche manuelle & Actions Scanner -->
+        <div class="bg-white p-3 sm:p-3.5 rounded-2xl shadow-sm border border-slate-200/85">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <!-- Déclencheur Caméra Directe -->
+                <label for="camera-input" class="cursor-pointer group flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm transition shadow-sm shadow-blue-600/25 active:scale-[0.98]">
+                    <i data-lucide="camera" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Prendre photo</span>
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
+                </label>
+                <!-- Déclencheur Galerie / Fichier -->
+                <label for="file-input" class="cursor-pointer group flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs sm:text-sm transition active:scale-[0.98]">
+                    <i data-lucide="image" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Importer image</span>
+                    <input type="file" id="file-input" accept="image/*" class="hidden">
+                </label>
+            </div>
+
+            <!-- Champ de saisie manuelle -->
+            <form id="search-form" class="relative flex items-center gap-2">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="manual-code-input" placeholder="Ex: 64.348.100 ou FR 29.135.01 CE ou Candia..." class="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <button type="button" id="clear-search-btn" class="hidden absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <button type="submit" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-medium transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                    <span>Rechercher</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Zone Visualisation Scan en cours -->
+        <div id="scan-progress-box" class="hidden bg-white p-3 rounded-2xl border border-blue-200 shadow-sm flex items-center gap-3">
+            <div class="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                <img id="scanned-image-preview" src="" alt="Aperçu estampille" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-blue-600/30 backdrop-blur-xs flex items-center justify-center">
+                    <i data-lucide="loader-2" class="w-5 h-5 text-white animate-spin"></i>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xs sm:text-sm font-semibold text-slate-800 truncate" id="scan-status-title">Lecture de l'estampille...</h3>
+                <p class="text-[11px] text-slate-500 mt-0.5 truncate" id="scan-status-detail">Analyse visuelle par modèle Groq</p>
+                <div class="w-full bg-slate-100 rounded-full h-1 mt-2 overflow-hidden">
+                    <div id="scan-progress-bar" class="bg-blue-600 h-1 rounded-full w-2/3 animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone d'alerte / Notification -->
+        <div id="notification-box" class="hidden p-3 rounded-xl text-xs sm:text-sm flex items-start gap-2.5 border transition">
+            <i id="notification-icon" data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+            <div id="notification-message" class="flex-1 leading-snug"></div>
+            <button onclick="hideNotification()" class="text-slate-400 hover:text-slate-600 p-0.5 shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+
+        <!-- Fiche Résultat Établissement -->
+        <div id="result-card" class="hidden flex flex-col gap-2.5">
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+                <!-- En-tête de la fiche résultat -->
+                <div class="p-3 sm:p-3.5 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <i data-lucide="check-circle-2" class="w-3 h-3"></i> Établissement Agréé CE
+                            </span>
+                            <span id="res-dept-badge" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-white/10 text-slate-200">Dép. --</span>
+                        </div>
+                        <h2 id="res-raison-sociale" class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">--</h2>
+                        <p id="res-commune-header" class="text-xs text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i> <span id="res-header-city">--</span>
+                        </p>
+                    </div>
+
+                    <!-- Badge Ovale Officiel CE & SIRET (avec Pappers intégré) -->
+                    <div class="shrink-0 flex items-center gap-2 sm:justify-end">
+                        <div class="border-2 border-white/80 rounded-[50%] px-3 py-1 text-center bg-white/5 backdrop-blur-xs shadow-inner">
+                            <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">FRANCE</div>
+                            <div id="res-agrement-ovale" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
+                            <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
+                        </div>
+                        <div class="bg-white/15 backdrop-blur-xs border border-white/20 px-2 py-1.5 rounded-xl text-left flex items-center gap-2">
+                            <div>
+                                <span class="text-[9px] uppercase font-semibold text-slate-300 tracking-wider block">SIRET</span>
+                                <span id="res-siret-header" class="font-mono text-xs font-bold text-slate-100">--</span>
+                            </div>
+                            <a id="btn-pappers" href="#" target="_blank" title="Fiche Entreprise (Pappers)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition shrink-0">
+                                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails Administratifs & Activités -->
+                <div class="p-3 sm:p-3.5 space-y-2.5">
+                    <!-- Adresse + Bouton Itinéraire GPS & Bouton Satellite -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Adresse de l'usine</span>
+                            <p id="res-adresse" class="text-xs sm:text-sm font-semibold text-slate-800 truncate">--</p>
+                            <p id="res-cp-ville" class="text-[11px] sm:text-xs text-slate-600 font-medium">--</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <!-- Bouton Itinéraire GPS épuré (Picto seul) -->
+                            <a id="btn-google-maps" href="#" target="_blank" title="Itinéraire GPS" class="p-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 transition active:scale-95 flex items-center justify-center">
+                                <i data-lucide="navigation" class="w-4 h-4 text-blue-600"></i>
+                            </a>
+                            <!-- Bouton Déclencheur Modal Satellite -->
+                            <button type="button" id="btn-open-satellite-modal" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-sm transition active:scale-95">
+                                <i data-lucide="satellite" class="w-3.5 h-3.5 text-sky-200"></i>
+                                <span>Vue satellite</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Activités & Filières agréées -->
+                    <div>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Activités & Filières agréées</span>
+                        <div id="res-activites-container" class="flex flex-wrap gap-1.5">
+                            <!-- Badges d'activités insérés dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Dynamique (Flux normal, s'affiche immédiatement sous la dernière tuile active) -->
+    <footer class="mt-2 py-2 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-2">
+            <span>Estampille Sanitaire CE</span>
+            <span>•</span>
+            <button type="button" id="btn-open-about-modal" class="text-blue-600 hover:underline font-medium">À propos</button>
+        </div>
+    </footer>
+
+    <!-- Modale Plein Écran : Vue Satellite Google Maps Embed -->
+    <div id="satellite-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex flex-col hidden animate-in fade-in duration-150">
+        <!-- Barre supérieure de la modale -->
+        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0 pr-3">
+                <div class="p-1.5 rounded-lg bg-blue-600 text-white shrink-0">
+                    <i data-lucide="satellite" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0">
+                    <h3 id="modal-title-etab" class="text-sm font-bold truncate">Vue Satellite Usine</h3>
+                    <p id="modal-subtitle-addr" class="text-xs text-slate-400 truncate">Localisation Google Maps...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a id="modal-btn-ext-maps" href="#" target="_blank" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Ouvrir dans Maps</span>
+                </a>
+                <button type="button" id="btn-close-satellite-modal" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Conteneur Iframe Google Maps Satellite plein écran -->
+        <div class="flex-1 relative w-full h-full bg-slate-950">
+            <iframe id="modal-map-iframe" class="w-full h-full border-0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Modale "À propos" -->
+    <div id="about-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden animate-in fade-in duration-150">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-slate-200 flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base">À propos de l'application</h3>
+                </div>
+                <button type="button" id="btn-close-about-modal" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Sources officielles</h4>
+                    <p>Cette application exploite le fichier officiel des établissements agréés au titre du paquet hygiène (Règlement CE n°853/2004) publié par la <strong>Direction Générale de l'Alimentation (DGAL)</strong> du Ministère de l'Agriculture et de la Souveraineté alimentaire.</p>
+                    <p id="about-dgal-count" class="mt-1 font-medium text-blue-600">Nombre d'usines référencées : chargement en cours...</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & RGPD</h4>
+                    <p>Aucune donnée personnelle n'est collectée ou stockée sur l'appareil de l'utilisateur. Les recherches et analyses d'images par IA sont traitées à la volée sans enregistrement persistant d'historique privé.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Fonctionnement</h4>
+                    <p>L'intelligence artificielle (modèle Groq Vision) permet de décoder les estampilles sanitaires ovales présentes sur les emballages alimentaires pour identifier instantanément l'usine de fabrication et sa conformité réglementaire.</p>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end">
+                <button type="button" id="btn-close-about-modal-footer" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium hover:bg-slate-800 transition">
+                    Compris
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script logique de l'application -->
+    <script>
+        // Clé API Groq OCR
+        const GROQ_API_KEY = "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";
+        // Modèle Groq Vision actif
+        const GROQ_VISION_MODEL = "qwen/qwen3.8-27b";
+
+        // Configuration sources DGAL officielles
+        const OFFICIAL_URL_DIRECT = "https://fichiers-publics.agriculture.gouv.fr/dgal/ListesOfficielles/ETAB_AGR_853.txt";
+        const CORS_PROXIES = [
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(OFFICIAL_URL_DIRECT)}`,
+            `https://corsproxy.io/?url=${encodeURIComponent(OFFICIAL_URL_DIRECT)}`
+        ];
+        const LOCAL_FALLBACK_URL = "./ETAB_AGR_853.txt";
+
+        // IndexedDB Cache
+        const DB_NAME = "EstampilleDB";
+        const DB_STORE = "records";
+        const DB_VERSION = 1;
+
+        // Variables d'état
+        let etablissementsMap = new Map();
+        let allRecordsList = [];
+        let isDbLoaded = false;
+        let currentEtab = null;
+
+        function refreshIcons() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        // Notification sans alert()
+        function showNotification(message, type = 'info') {
+            const box = document.getElementById('notification-box');
+            const msgEl = document.getElementById('notification-message');
+            const iconEl = document.getElementById('notification-icon');
+
+            box.className = "p-2.5 rounded-xl text-xs sm:text-sm flex items-start gap-2.5 border transition " + 
+                (type === 'error' ? 'bg-red-50 text-red-800 border-red-200' : 
+                 type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 
+                 'bg-blue-50 text-blue-800 border-blue-200');
+
+            iconEl.setAttribute('data-lucide', type === 'error' ? 'alert-triangle' : (type === 'success' ? 'check-circle-2' : 'info'));
+            msgEl.innerHTML = message;
+            box.classList.remove('hidden');
+            refreshIcons();
+
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideNotification() {
+            document.getElementById('notification-box').classList.add('hidden');
+        }
+
+        // Normalisation stricte de l'estampille pour matcher dans la base
+        function cleanAgrementCode(code) {
+            if (!code) return "";
+            return code.toString()
+                .toUpperCase()
+                .replace(/^FR\s*/i, '')
+                .replace(/\s*CE$/i, '')
+                .replace(/[^0-9A-Z]/g, '')
+                .trim();
+        }
+
+        // IndexedDB
+        function openIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(DB_STORE)) {
+                        db.createObjectStore(DB_STORE, { keyPath: "cleanCode" });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function getCachedRecordsFromIDB() {
+            try {
+                const db = await openIndexedDB();
+                return new Promise((resolve) => {
+                    const tx = db.transaction(DB_STORE, "readonly");
+                    const store = tx.objectStore(DB_STORE);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                });
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function saveRecordsToIDB(records) {
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction(DB_STORE, "readwrite");
+                const store = tx.objectStore(DB_STORE);
+                store.clear();
+                for (let r of records) {
+                    store.put(r);
+                }
+                return new Promise((resolve) => {
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                });
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Parsing CSV officiel DGAL
+        function parseDgalTxt(text) {
+            const lines = text.split(/\r?\n/);
+            const parsedRecords = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line || line.startsWith('"Département"') || line.startsWith('Département') || line.startsWith('"Numero de département"')) {
+                    continue;
+                }
+
+                let fields = [];
+                let currentField = '';
+                let inQuotes = false;
+                for (let c = 0; c < line.length; c++) {
+                    const char = line[c];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(currentField.trim());
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
+                }
+                fields.push(currentField.trim());
+
+                if (fields.length >= 4) {
+                    const dept = fields[0] ? fields[0].replace(/"/g, '').trim() : '';
+                    const numAgrement = fields[1] ? fields[1].replace(/"/g, '').trim() : '';
+                    const siret = fields[2] ? fields[2].replace(/"/g, '').trim() : '';
+                    const raisonSociale = fields[3] ? fields[3].replace(/"/g, '').trim() : '';
+                    const adresse = fields[4] ? fields[4].replace(/"/g, '').trim() : '';
+                    const codePostal = fields[5] ? fields[5].replace(/"/g, '').trim() : '';
+                    const commune = fields[6] ? fields[6].replace(/"/g, '').trim() : '';
+                    const activites = fields[7] ? fields[7].replace(/"/g, '').trim() : '';
+
+                    const cleanCode = cleanAgrementCode(numAgrement);
+
+                    if (cleanCode) {
+                        parsedRecords.push({
+                            dept,
+                            numAgrement,
+                            cleanCode,
+                            siret,
+                            raisonSociale,
+                            adresse,
+                            codePostal,
+                            commune,
+                            activites
+                        });
+                    }
+                }
+            }
+            return parsedRecords;
+        }
+
+        function hydrateMemoryDB(records, sourceName = "DGAL Officiel") {
+            etablissementsMap.clear();
+            allRecordsList = records;
+            for (let r of records) {
+                etablissementsMap.set(r.cleanCode, r);
+            }
+            isDbLoaded = true;
+            
+            // Mise à jour de la mention dans la modale À propos
+            const aboutCountEl = document.getElementById('about-dgal-count');
+            if (aboutCountEl) {
+                aboutCountEl.textContent = `Nombre d'usines référencées : ${records.length.toLocaleString('fr-FR')}.`;
+            }
+        }
+
+        // Chargement de la base avec cascade de secours
+        async function loadOfficialDatabase() {
+            // A. Cache local rapide
+            const cachedRecords = await getCachedRecordsFromIDB();
+            if (cachedRecords && cachedRecords.length > 500) {
+                hydrateMemoryDB(cachedRecords, "Cache local DGAL");
+            }
+
+            // B. Téléchargement depuis source officielle
+            let txtContent = null;
+            let origin = "";
+
+            try {
+                const res = await fetch(OFFICIAL_URL_DIRECT, { cache: 'no-store' });
+                if (res.ok) {
+                    txtContent = await res.text();
+                    origin = "DGAL Officiel Direct";
+                }
+            } catch (err) {}
+
+            if (!txtContent) {
+                for (let proxyUrl of CORS_PROXIES) {
+                    try {
+                        const res = await fetch(proxyUrl);
+                        if (res.ok) {
+                            txtContent = await res.text();
+                            origin = "DGAL Serveur Officiel";
+                            break;
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            // C. Fallback local ETAB_AGR_853.txt
+            if (!txtContent) {
+                try {
+                    const res = await fetch(LOCAL_FALLBACK_URL);
+                    if (res.ok) {
+                        txtContent = await res.text();
+                        origin = "Fichier local ETAB_AGR_853.txt";
+                    }
+                } catch (e) {}
+            }
+
+            if (txtContent && txtContent.length > 100) {
+                const records = parseDgalTxt(txtContent);
+                if (records.length > 0) {
+                    hydrateMemoryDB(records, origin);
+                    saveRecordsToIDB(records);
+                }
+            }
+        }
+
+        // Recherche d'établissement
+        function lookupEstablishment(inputQuery) {
+            if (!inputQuery) return null;
+
+            const cleanQuery = cleanAgrementCode(inputQuery);
+            if (cleanQuery && etablissementsMap.has(cleanQuery)) {
+                return etablissementsMap.get(cleanQuery);
+            }
+
+            for (let [code, etab] of etablissementsMap) {
+                if (code.includes(cleanQuery) || cleanQuery.includes(code)) {
+                    return etab;
+                }
+            }
+
+            const cleanSiret = inputQuery.replace(/\D/g, '');
+            if (cleanSiret.length >= 9) {
+                for (let etab of allRecordsList) {
+                    if (etab.siret && etab.siret.includes(cleanSiret)) {
+                        return etab;
+                    }
+                }
+            }
+
+            const lowerQuery = inputQuery.toLowerCase().trim();
+            if (lowerQuery.length >= 3) {
+                for (let etab of allRecordsList) {
+                    if (etab.raisonSociale && etab.raisonSociale.toLowerCase().includes(lowerQuery)) {
+                        return etab;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // Affichage des résultats
+        function displayEstablishment(etab) {
+            currentEtab = etab;
+            hideNotification();
+
+            const resultCard = document.getElementById('result-card');
+            resultCard.classList.remove('hidden');
+
+            document.getElementById('res-raison-sociale').textContent = etab.raisonSociale || 'Nom non précisé';
+            document.getElementById('res-dept-badge').textContent = `Dép. ${etab.dept || '--'}`;
+            document.getElementById('res-header-city').textContent = `${etab.codePostal || ''} ${etab.commune || ''}`.trim() || 'France';
+            document.getElementById('res-agrement-ovale').textContent = etab.numAgrement || etab.cleanCode;
+            document.getElementById('res-siret-header').textContent = etab.siret || 'Non communiqué';
+            document.getElementById('res-adresse').textContent = etab.adresse || 'Adresse non spécifiée';
+            document.getElementById('res-cp-ville').textContent = `${etab.codePostal || ''} ${etab.commune || ''}`.trim();
+
+            // Badges d'activités
+            const actContainer = document.getElementById('res-activites-container');
+            actContainer.innerHTML = '';
+            if (etab.activites) {
+                const acts = etab.activites.split(/[;,-]/).map(a => a.trim()).filter(Boolean);
+                if (acts.length > 0) {
+                    acts.forEach(act => {
+                        const badge = document.createElement('span');
+                        badge.className = "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200";
+                        badge.textContent = act;
+                        actContainer.appendChild(badge);
+                    });
+                } else {
+                    actContainer.innerHTML = `<span class="text-xs text-slate-500">${etab.activites}</span>`;
+                }
+            } else {
+                actContainer.innerHTML = '<span class="text-xs text-slate-400">Non spécifié</span>';
+            }
+
+            const fullAddress = `${etab.adresse || ''} ${etab.codePostal || ''} ${etab.commune || ''}`.trim();
+            const locationQuery = `${etab.raisonSociale || ''} ${fullAddress}`.trim();
+            
+            // Lien Google Maps Navigation
+            document.getElementById('btn-google-maps').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery)}`;
+            
+            // Lien Pappers via https://www.pappers.fr/recherche?q={siret}
+            const cleanSiretDigits = (etab.siret || '').replace(/\D/g, '');
+            const pappersQuery = cleanSiretDigits.length >= 9 ? cleanSiretDigits : (etab.raisonSociale || etab.numAgrement);
+            document.getElementById('btn-pappers').href = `https://www.pappers.fr/recherche?q=${encodeURIComponent(pappersQuery)}`;
+
+            refreshIcons();
+
+            // Défilement maîtrisé - cale le résultat exactement au sommet de la page
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // OCR avec le modèle Groq 'qwen/qwen3.8-27b'
+        async function runOcrAnalysis(base64DataUrl) {
+            const rawBase64 = base64DataUrl.split(',')[1];
+            const payload = {
+                model: GROQ_VISION_MODEL,
+                temperature: 0.1,
+                max_tokens: 512,
+                messages: [
+                    {
+                        role: "system",
+                        content: "Tu es un expert en lecture d'estampilles sanitaires d'agrément CE européennes (ovale présent sur les emballages alimentaires : FR XX.XXX.XXX CE).\n" +
+                                 "L'image peut être inclinée ou pivotée.\n" +
+                                 "Extrais UNIQUEMENT le numéro d'agrément sanitaire (souvent 8 chiffres ou format Dept.Commune.Ordre, ex: 64.348.100 ou 72.181.001).\n" +
+                                 "Format de réponse : UNIQUEMENT un objet JSON brut sans balises markdown : {\"agrement\": \"XX.XXX.XXX\"}"
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            { type: "text", text: "Extrais le code d'agrément de cette estampille sanitaire." },
+                            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${rawBase64}` } }
+                        ]
+                    }
+                ]
+            };
+
+            const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!resp.ok) {
+                const errJson = await resp.json().catch(() => ({}));
+                throw new Error(errJson.error?.message || `Erreur Groq (${resp.status})`);
+            }
+
+            const res = await resp.json();
+            const text = res.choices?.[0]?.message?.content || "{}";
+            const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanJson);
+            return parsed.agrement || "";
+        }
+
+        async function handleImageFile(file) {
+            if (!file) return;
+
+            const progressBox = document.getElementById('scan-progress-box');
+            const previewImg = document.getElementById('scanned-image-preview');
+            const statusTitle = document.getElementById('scan-status-title');
+            const statusDetail = document.getElementById('scan-status-detail');
+
+            progressBox.classList.remove('hidden');
+            hideNotification();
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64Data = e.target.result;
+                previewImg.src = base64Data;
+                statusTitle.textContent = "Lecture de l'estampille...";
+                statusDetail.textContent = `Reconnaissance avec ${GROQ_VISION_MODEL}...`;
+
+                try {
+                    const code = await runOcrAnalysis(base64Data);
+
+                    if (code) {
+                        document.getElementById('manual-code-input').value = code;
+                        document.getElementById('clear-search-btn').classList.remove('hidden');
+
+                        const etab = lookupEstablishment(code);
+                        if (etab) {
+                            displayEstablishment(etab);
+                        } else {
+                            showNotification(`Estampille lue : <strong>${code}</strong>, mais non répertoriée dans la base DGAL chargée.`, 'error');
+                        }
+                    } else {
+                        showNotification("Aucune estampille ovale n'a pu être lue distinctement sur cette photo. Rapprochez-vous avec un meilleur éclairage.", 'error');
+                    }
+                } catch (err) {
+                    showNotification(`Erreur lors de l'analyse photo : ${err.message}`, 'error');
+                } finally {
+                    progressBox.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Gestion de la modale Satellite avec l'historique mobile (bouton retour arrière)
+        function openSatelliteModal() {
+            if (!currentEtab) return;
+
+            const modal = document.getElementById('satellite-modal');
+            const modalTitle = document.getElementById('modal-title-etab');
+            const modalSubtitle = document.getElementById('modal-subtitle-addr');
+            const extMapsBtn = document.getElementById('modal-btn-ext-maps');
+            const mapIframe = document.getElementById('modal-map-iframe');
+
+            const fullAddress = `${currentEtab.adresse || ''} ${currentEtab.codePostal || ''} ${currentEtab.commune || ''}`.trim();
+            const targetQuery = `${currentEtab.raisonSociale || ''} ${fullAddress}`.trim();
+
+            modalTitle.textContent = currentEtab.raisonSociale || 'Établissement Agréé';
+            modalSubtitle.textContent = fullAddress || 'France';
+            extMapsBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetQuery)}`;
+
+            // Google Maps Satellite Embed natif (t=k pour satellite, z=18 pour zoom usine)
+            mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(targetQuery)}&t=k&z=18&output=embed`;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Pousse un état dans l'historique pour intercepter le retour arrière mobile
+            history.pushState({ satelliteModalOpen: true }, "");
+        }
+
+        function closeSatelliteModal(fromPopState = false) {
+            const modal = document.getElementById('satellite-modal');
+            if (modal.classList.contains('hidden')) return;
+
+            modal.classList.add('hidden');
+            document.getElementById('modal-map-iframe').src = 'about:blank';
+            document.body.style.overflow = '';
+
+            if (!fromPopState && history.state && history.state.satelliteModalOpen) {
+                history.back();
+            }
+        }
+
+        // Gestion Modale "À propos"
+        function openAboutModal() {
+            document.getElementById('about-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAboutModal() {
+            document.getElementById('about-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Initialisation des écouteurs
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshIcons();
+            loadOfficialDatabase();
+
+            const cameraInput = document.getElementById('camera-input');
+            const fileInput = document.getElementById('file-input');
+
+            cameraInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    handleImageFile(e.target.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    handleImageFile(e.target.files[0]);
+                }
+            });
+
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('manual-code-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearBtn.classList.add('hidden');
+                searchInput.focus();
+            });
+
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const q = searchInput.value.trim();
+                if (!q) return;
+
+                const found = lookupEstablishment(q);
+                if (found) {
+                    displayEstablishment(found);
+                } else {
+                    showNotification(`Aucun établissement agréé trouvé pour : "<strong>${q}</strong>".`, 'error');
+                }
+            });
+
+            // Modale Satellite
+            document.getElementById('btn-open-satellite-modal').addEventListener('click', openSatelliteModal);
+            document.getElementById('btn-close-satellite-modal').addEventListener('click', () => closeSatelliteModal(false));
+
+            // Modale À propos
+            document.getElementById('btn-open-about-modal').addEventListener('click', openAboutModal);
+            document.getElementById('btn-close-about-modal').addEventListener('click', closeAboutModal);
+            document.getElementById('btn-close-about-modal-footer').addEventListener('click', closeAboutModal);
+
+            // Gestion du bouton retour arrière (popstate) pour les modales
+            window.addEventListener('popstate', (e) => {
+                const satelliteModal = document.getElementById('satellite-modal');
+                if (!satelliteModal.classList.contains('hidden')) {
+                    closeSatelliteModal(true);
+                }
+            });
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeSatelliteModal(false);
+                    closeAboutModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
