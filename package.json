@@ -1,0 +1,15 @@
+{
+  "name": "estampille-sanitaire-ce",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Estampille Sanitaire CE : établissements agréés DGAL",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i src/tailwind.css -o assets/tailwind.css --minify",
+    "watch:css": "tailwindcss -c tailwind.config.js -i src/tailwind.css -o assets/tailwind.css --watch",
+    "update:lucide": "cp node_modules/lucide/dist/umd/lucide.min.js assets/lucide-1.59.0.min.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17",
+    "lucide": "1.59.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Estampille Sanitaire CE",
+  "short_name": "Estampille CE",
+  "description": "Lisez l'estampille sanitaire ovale d'un emballage et trouvez l'établissement agréé qui l'a préparé, d'après la liste officielle de la DGAL.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#ffffff",
+  "categories": ["food", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

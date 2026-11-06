@@ -4,10 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estampille Sanitaire CE - Établissement agréé & Traçabilité</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="description" content="Lisez l'estampille sanitaire ovale (FR 00.000.000 CE) d'un emballage alimentaire et trouvez l'établissement agréé qui l'a préparé, d'après la liste officielle de la DGAL.">
+    <meta name="robots" content="index, follow">
+    <meta name="format-detection" content="telephone=no">
+    <!-- URL publique du site -->
+    <link rel="canonical" href="https://scan-estampille.github.io/">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="application-name" content="Estampille CE">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Estampille CE">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <!-- Open Graph / partage -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Estampille Sanitaire CE">
+    <meta property="og:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta property="og:description" content="Photographiez ou saisissez le numéro de l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé : nom, adresse, activités. Données officielles DGAL.">
+    <meta property="og:url" content="https://scan-estampille.github.io/">
+    <meta property="og:image" content="https://scan-estampille.github.io/icons/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Estampille ovale FRANCE 00.000.000 CE à côté du nom de l'application">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta name="twitter:description" content="Lisez l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé, d'après la liste officielle DGAL.">
+    <meta name="twitter:image" content="https://scan-estampille.github.io/icons/og-image.png">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Estampille Sanitaire CE",
+        "url": "https://scan-estampille.github.io/",
+        "description": "Identifie l'établissement agréé CE à partir du numéro de l'estampille sanitaire ovale, d'après la liste officielle de la DGAL.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Tous (navigateur web)",
+        "inLanguage": "fr",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    }
+    </script>
+
+    <!-- Tailwind CSS compilé (v3.4.17, voir src/tailwind.css et package.json) -->
+    <link rel="stylesheet" href="assets/tailwind.css">
+    <!-- Lucide Icons, version épinglée et servie localement (fonctionne hors ligne) -->
+    <script src="assets/lucide-1.59.0.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -168,7 +216,7 @@
                     <!-- Activités & Filières agréées -->
                     <div>
                         <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Activités & Filières agréées</span>
-                        <div id="res-activites-container" class="flex flex-wrap gap-1.5">
+                        <div id="res-activites-container" class="flex flex-col gap-2">
                             <!-- Badges d'activités insérés dynamiquement -->
                         </div>
                     </div>
@@ -277,6 +325,13 @@
 
     <!-- Script logique de l'application -->
     <script>
+        // PWA : service worker (HTTPS ou localhost uniquement)
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker non enregistré :', err));
+            });
+        }
+
         // Proxy OCR (Cloudflare Worker) : la clé API reste côté serveur
         const OCR_PROXY_URL = "https://estampille-ocr.adroul44.workers.dev";
 
@@ -686,6 +741,130 @@
             }
         }
 
+        // === ACTIVITÉS (début) ===
+        // Le fichier DGAL code chaque activité « section(activité) », ex. 0(CS), I(CP), V(MP).
+        // Sections et activités de l'annexe III du règlement (CE) 853/2004.
+        const SECTION_ORDER = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI'];
+        const SECTION_LABELS = {
+            '0': "Activités générales",
+            'I': "Viandes d'ongulés domestiques",
+            'II': "Viandes de volailles et de lagomorphes",
+            'III': "Viandes de gibier d'élevage",
+            'IV': "Viandes de gibier sauvage",
+            'V': "Viandes hachées, préparations de viandes et VSM",
+            'VI': "Produits à base de viande",
+            'VII': "Mollusques bivalves vivants",
+            'VIII': "Produits de la pêche",
+            'IX': "Lait cru, colostrum et produits laitiers",
+            'X': "Œufs et ovoproduits",
+            'XI': "Cuisses de grenouilles et escargots",
+            'XII': "Graisses animales fondues et cretons",
+            'XIII': "Estomacs, vessies et boyaux traités",
+            'XIV': "Gélatine",
+            'XV': "Collagène",
+            'XVI': "Produits hautement raffinés"
+        };
+        const ACTIVITY_LABELS = {
+            CS: "Entreposage frigorifique",
+            RW: "Reconditionnement",
+            WM: "Marché de gros",
+            SH: "Abattoir",
+            CP: "Atelier de découpe",
+            GHE: "Atelier de traitement du gibier",
+            MM: "Viandes hachées",
+            MP: "Préparations de viandes",
+            MSM: "Viandes séparées mécaniquement",
+            PP: "Transformation",
+            DC: "Centre d'expédition",
+            PC: "Centre de purification",
+            FV: "Navire-usine",
+            ZV: "Navire congélateur",
+            FFPP: "Produits de la pêche frais",
+            AH: "Halle de criée",
+            CC: "Centre de collecte",
+            EPC: "Centre d'emballage d'œufs",
+            LEP: "Production d'œufs liquides"
+        };
+
+        // "I(CP)" (ou "CP (I)", ou "CS" seul) -> { section, code, raw } ; null si le format est inconnu
+        function parseActivityCode(token) {
+            const t = token.replace(/\s+/g, '').toUpperCase();
+            let m = t.match(/^([0IVX]+)\(([A-Z]+)\)$/);
+            if (m) return { section: m[1], code: m[2], raw: t };
+            m = t.match(/^([A-Z]+)\(([0IVX]+)\)$/);
+            if (m) return { section: m[2], code: m[1], raw: `${m[2]}(${m[1]})` };
+            if (ACTIVITY_LABELS[t]) return { section: '', code: t, raw: t };
+            return null;
+        }
+
+        function makeActivityBadge(label, codeText, title) {
+            const badge = document.createElement('span');
+            badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200";
+            badge.textContent = label;
+            if (codeText) {
+                const code = document.createElement('span');
+                code.className = "text-slate-400 font-normal";
+                code.textContent = codeText;
+                badge.appendChild(code);
+            }
+            if (title) badge.title = title;
+            return badge;
+        }
+
+        // Regroupe les activités par filière (section), dans l'ordre du règlement
+        function renderActivities(container, activitesText) {
+            container.innerHTML = '';
+            const tokens = [...new Set(activitesText.split(/[;,-]/).map(a => a.trim()).filter(Boolean))];
+            if (!tokens.length) {
+                const span = document.createElement('span');
+                span.className = 'text-xs text-slate-500';
+                span.textContent = activitesText;
+                container.appendChild(span);
+                return;
+            }
+
+            const groups = new Map();
+            const unparsed = [];
+            for (const tok of tokens) {
+                const a = parseActivityCode(tok);
+                if (!a) { unparsed.push(tok); continue; }
+                if (!groups.has(a.section)) groups.set(a.section, []);
+                const list = groups.get(a.section);
+                if (!list.some(x => x.code === a.code)) list.push(a);
+            }
+
+            const rank = (sec) => { const i = SECTION_ORDER.indexOf(sec); return i === -1 ? 99 : i; };
+            [...groups.keys()].sort((x, y) => rank(x) - rank(y)).forEach(sec => {
+                const group = document.createElement('div');
+                if (sec) {
+                    const head = document.createElement('div');
+                    head.className = "text-[11px] sm:text-xs font-semibold text-slate-600 mb-1";
+                    head.textContent = SECTION_LABELS[sec] || `Section ${sec}`;
+                    const num = document.createElement('span');
+                    num.className = "text-slate-400 font-normal";
+                    num.textContent = ` (section ${sec})`;
+                    head.appendChild(num);
+                    group.appendChild(head);
+                }
+                const row = document.createElement('div');
+                row.className = "flex flex-wrap gap-1.5";
+                groups.get(sec).forEach(a => {
+                    const label = ACTIVITY_LABELS[a.code] || a.code;
+                    row.appendChild(makeActivityBadge(label, ACTIVITY_LABELS[a.code] ? a.code : '', `Code DGAL : ${a.raw}`));
+                });
+                group.appendChild(row);
+                container.appendChild(group);
+            });
+
+            if (unparsed.length) {
+                const row = document.createElement('div');
+                row.className = "flex flex-wrap gap-1.5";
+                unparsed.forEach(tok => row.appendChild(makeActivityBadge(tok, '', '')));
+                container.appendChild(row);
+            }
+        }
+        // === ACTIVITÉS (fin) ===
+
         // Affichage des résultats
         function displayEstablishment(etab) {
             currentEtab = etab;
@@ -707,20 +886,7 @@
             const actContainer = document.getElementById('res-activites-container');
             actContainer.innerHTML = '';
             if (etab.activites) {
-                const acts = etab.activites.split(/[;,-]/).map(a => a.trim()).filter(Boolean);
-                if (acts.length > 0) {
-                    acts.forEach(act => {
-                        const badge = document.createElement('span');
-                        badge.className = "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200";
-                        badge.textContent = act;
-                        actContainer.appendChild(badge);
-                    });
-                } else {
-                    const span = document.createElement('span');
-                    span.className = 'text-xs text-slate-500';
-                    span.textContent = etab.activites;
-                    actContainer.appendChild(span);
-                }
+                renderActivities(actContainer, etab.activites);
             } else {
                 actContainer.innerHTML = '<span class="text-xs text-slate-400">Non spécifié</span>';
             }
@@ -778,8 +944,16 @@
             return data.agrement || "";
         }
 
+        const OFFLINE_PHOTO_MSG = "La lecture de photo nécessite une connexion internet. Hors ligne, saisissez le numéro de l'estampille dans le champ de recherche : la recherche fonctionne sans connexion.";
+
         async function handleImageFile(file) {
             if (!file) return;
+
+            if (navigator.onLine === false) {
+                hideCandidates();
+                showNotification(OFFLINE_PHOTO_MSG, 'error');
+                return;
+            }
 
             const progressBox = document.getElementById('scan-progress-box');
             const previewImg = document.getElementById('scanned-image-preview');
@@ -813,7 +987,11 @@
                         showNotification("Aucune estampille ovale n'a pu être lue distinctement sur cette photo. Rapprochez-vous avec un meilleur éclairage.", 'error');
                     }
                 } catch (err) {
-                    showNotification(`Erreur lors de l'analyse photo : ${err.message}`, 'error');
+                    if (navigator.onLine === false || err instanceof TypeError) {
+                        showNotification(OFFLINE_PHOTO_MSG, 'error');
+                    } else {
+                        showNotification(`Erreur lors de l'analyse photo : ${escapeHtml(err.message)}`, 'error');
+                    }
                 } finally {
                     progressBox.classList.add('hidden');
                 }
