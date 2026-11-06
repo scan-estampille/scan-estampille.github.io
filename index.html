@@ -327,6 +327,7 @@
                         <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
                         <li><strong>Liste officielle</strong> : téléchargée via le relais et conservée dans le navigateur pour accélérer l'application.</li>
                         <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
+                        <li><strong>Statistiques de fréquentation</strong> : mesure d'audience anonyme par Cloudflare Web Analytics, sans cookie ni identifiant enregistré sur votre appareil (pages vues, pays, type d'appareil). Ces statistiques servent uniquement à suivre l'utilisation de l'application.</li>
                         <li><strong>Services tiers</strong> : la vue satellite (Google Maps) et le lien Pappers ouvrent des services externes qui ont leur propre politique.</li>
                     </ul>
                 </div>
@@ -1150,5 +1151,9 @@
             });
         });
     </script>
+
+    <!-- Cloudflare Web Analytics (sans cookie) -->
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "21b57369fb1845f2ac43fcf7a08ee389"}'></script>
+    <!-- End Cloudflare Web Analytics -->
 </body>
 </html>
