@@ -1,0 +1,75 @@
+name: Mise à jour de la liste DGAL
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # tous les jours à 4 h 17 UTC (5 h 17 ou 6 h 17 à Paris)
+  workflow_dispatch:       # bouton « Run workflow » pour lancer à la main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: maj-liste-dgal
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v5
+
+      - name: Télécharger et vérifier la liste officielle
+        run: |
+          set -euo pipefail
+
+          # Sources essayées dans l'ordre : site du ministère, puis le relais Cloudflare de l'appli
+          SOURCES=(
+            "https://fichiers-publics.agriculture.gouv.fr/dgal/ListesOfficielles/ETAB_AGR_853.txt"
+            "https://estampille-ocr.adroul44.workers.dev/dgal"
+          )
+          # Un numéro d'agrément : 01.004.002, 2A.004.001, 971.17.023…
+          PATTERN='[0-9AB]{2,3}\.[0-9]{2,3}\.[0-9]{2,3}'
+          MIN_RECORDS=1000
+
+          ok=""
+          for url in "${SOURCES[@]}"; do
+            echo "Essai : $url"
+            if curl -fsSL --retry 3 --retry-delay 15 --max-time 180 \
+                 -A "scan-estampille-updater (+https://scan-estampille.github.io/)" \
+                 -o new.txt "$url"; then
+              n=$(grep -cE "$PATTERN" new.txt || true)
+              echo "Lignes avec un numéro d'agrément : $n"
+              if [ "$n" -ge "$MIN_RECORDS" ]; then ok=1; break; fi
+              echo "Fichier inattendu, source ignorée."
+            else
+              echo "Téléchargement impossible depuis cette source."
+            fi
+          done
+          [ -n "$ok" ] || { echo "::error::Aucune source n'a fourni une liste valide. Le fichier actuel est conservé."; exit 1; }
+
+          # Garde-fou : refuser une liste qui perd brutalement plus de 20 % des lignes
+          if [ -f ETAB_AGR_853.txt ]; then
+            old=$(grep -cE "$PATTERN" ETAB_AGR_853.txt || true)
+            echo "Lignes dans la liste actuelle : $old"
+            if [ "$old" -gt 0 ] && [ "$n" -lt $(( old * 80 / 100 )) ]; then
+              echo "::error::La nouvelle liste ($n lignes) est beaucoup plus courte que l'actuelle ($old). Mise à jour refusée par sécurité."
+              exit 1
+            fi
+          fi
+
+          mv new.txt ETAB_AGR_853.txt
+
+      - name: Enregistrer la liste si elle a changé
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- ETAB_AGR_853.txt; then
+            echo "La liste n'a pas changé, rien à enregistrer."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add ETAB_AGR_853.txt
+          git commit -m "Mise à jour automatique de la liste DGAL ($(date -u +%Y-%m-%d))"
+          git push
