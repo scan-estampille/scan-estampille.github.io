@@ -268,16 +268,16 @@
     <!-- Script logique de l'application -->
     <script>
         // Proxy OCR (Cloudflare Worker) : la clé API reste côté serveur
-        const OCR_PROXY_URL = "https://estampille-ocr.adroul44.workers.dev";
+        const OCR_PROXY_URL = "https://estampille-ocr.VOTRE-SOUS-DOMAINE.workers.dev";
 
         // Liste officielle des établissements agréés CE (DGAL, Ministère de l'Agriculture)
         const OFFICIAL_URL_DIRECT = "https://fichiers-publics.agriculture.gouv.fr/dgal/ListesOfficielles/ETAB_AGR_853.txt";
 
         // Sources essayées dans l'ordre. Une source est acceptée seulement si elle fournit assez de lignes valides.
         const DGAL_SOURCES = [
-            { name: "DGAL (relais en direct)", url: `${OCR_PROXY_URL}/dgal` },
-            { name: "DGAL (accès direct)", url: OFFICIAL_URL_DIRECT },
-            { name: "Copie locale du dépôt", url: "./ETAB_AGR_853.txt" }
+            { name: "DGAL (relais en direct)", url: `${OCR_PROXY_URL}/dgal`, live: true },
+            { name: "DGAL (accès direct)", url: OFFICIAL_URL_DIRECT, live: true },
+            { name: "Copie locale du dépôt", url: "./ETAB_AGR_853.txt", live: false }
         ];
         const MIN_EXPECTED_RECORDS = 1000;
         const CACHE_MAX_AGE_MS = 12 * 3600 * 1000; // pas de nouveau téléchargement si le cache a moins de 12 h
@@ -449,7 +449,7 @@
             el.className = "mt-1 font-medium " + (isError ? "text-red-600" : "text-blue-600");
         }
 
-        function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null) {
+        function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null, live = true) {
             etablissementsMap.clear();
             allRecordsList = records;
             for (const r of records) {
@@ -460,7 +460,8 @@
             isDbLoaded = true;
             dbLoadState = 'ready';
 
-            const when = timestamp ? ` · liste chargée le ${new Date(timestamp).toLocaleDateString('fr-FR')}` : '';
+            const when = !live ? ' · copie de secours, peut ne pas être à jour'
+                : (timestamp ? ` · liste chargée le ${new Date(timestamp).toLocaleDateString('fr-FR')}` : '');
             setDbStatusText(`Nombre d'usines DGAL référencées : ${records.length.toLocaleString('fr-FR')} (${sourceName}${when})`);
         }
 
@@ -491,9 +492,11 @@
             // A. Cache local : la recherche fonctionne tout de suite
             const cached = await getCachedRecordsFromIDB();
             if (cached && cached.length >= MIN_EXPECTED_RECORDS) {
-                hydrateMemoryDB(cached, (meta && meta.source) || "Cache local", meta && meta.time);
+                hydrateMemoryDB(cached, (meta && meta.source) || "Cache local", meta && meta.time, !!(meta && meta.live));
                 usingCache = true;
-                if (meta && Date.now() - meta.time < CACHE_MAX_AGE_MS) return; // cache récent
+                // Cache récent ET issu d'une source en direct : inutile de re-télécharger.
+                // Une copie de secours, elle, déclenche toujours une nouvelle tentative en direct.
+                if (meta && meta.live && Date.now() - meta.time < CACHE_MAX_AGE_MS) return;
             }
 
             // B. Sources en direct, dans l'ordre
@@ -505,8 +508,8 @@
                         throw new Error(`fichier inattendu (${records.length} lignes valides)`);
                     }
                     const now = Date.now();
-                    hydrateMemoryDB(records, src.name, now);
-                    writeDbMeta({ time: now, source: src.name, count: records.length });
+                    hydrateMemoryDB(records, src.name, now, src.live);
+                    writeDbMeta({ time: now, source: src.name, count: records.length, live: src.live });
                     saveRecordsToIDB(records);
                     return;
                 } catch (err) {
