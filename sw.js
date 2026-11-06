@@ -1,6 +1,6 @@
 // Service worker Estampille Sanitaire CE
 // Incrémenter VERSION à chaque déploiement pour forcer le renouvellement du cache.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `estampille-${VERSION}`;
 
 const APP_SHELL = [

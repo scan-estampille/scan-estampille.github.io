@@ -95,6 +95,30 @@
 
         <!-- Barre de recherche manuelle & Actions Scanner -->
         <div class="bg-white p-3 sm:p-3.5 rounded-2xl shadow-sm border border-slate-200/85">
+            <!-- Mini tuto : quoi photographier -->
+            <div class="flex items-center gap-3 mb-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100">
+                <svg class="w-[104px] h-[72px] shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille ovale FR 00.000.000 CE encadrée pour la photo">
+                    <!-- étiquette de l'emballage -->
+                    <rect x="1" y="1" width="102" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <rect x="8" y="10" width="20" height="4" rx="2" fill="#cbd5e1"/>
+                    <rect x="8" y="19" width="16" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="26" width="18" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="49" width="17" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="56" width="12" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <!-- estampille ovale -->
+                    <ellipse cx="66" cy="36" rx="29" ry="20" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+                    <text x="66" y="28.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" font-weight="700" fill="#0f172a">FR</text>
+                    <text x="66" y="39.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="800" fill="#0f172a">00.000.000</text>
+                    <text x="66" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" font-weight="700" fill="#0f172a">CE</text>
+                    <!-- cadre de visée -->
+                    <path d="M32 15v-3a4 4 0 0 1 4-4h4 M92 8h4a4 4 0 0 1 4 4v3 M100 57v3a4 4 0 0 1-4 4h-4 M40 64h-4a4 4 0 0 1-4-4v-3" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="min-w-0">
+                    <h2 class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">Photographiez l'estampille sanitaire</h2>
+                    <p class="text-[11px] sm:text-xs text-slate-600 leading-snug mt-0.5">C'est le petit ovale «&nbsp;FR&nbsp;00.000.000&nbsp;CE&nbsp;» imprimé sur les emballages de viande, poisson, fromage, œufs… souvent près de la date limite. Cadrez-le de près, net et bien éclairé.</p>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <!-- Déclencheur Caméra Directe -->
                 <label for="camera-input" class="cursor-pointer group flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm transition shadow-sm shadow-blue-600/25 active:scale-[0.98]">
@@ -179,15 +203,15 @@
                             <div id="res-agrement-ovale" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
                             <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
                         </div>
-                        <div class="bg-white/15 backdrop-blur-xs border border-white/20 px-2 py-1.5 rounded-xl text-left flex items-center gap-2">
+                        <a id="btn-pappers" href="#" target="_blank" rel="noopener noreferrer" title="Fiche Entreprise (Pappers)" aria-label="Voir la fiche entreprise sur Pappers" class="group bg-white/15 hover:bg-white/25 backdrop-blur-xs border border-white/20 hover:border-white/40 px-2 py-1.5 rounded-xl text-left flex items-center gap-2 transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
                             <div>
                                 <span class="text-[9px] uppercase font-semibold text-slate-300 tracking-wider block">SIRET</span>
                                 <span id="res-siret-header" class="font-mono text-xs font-bold text-slate-100">--</span>
                             </div>
-                            <a id="btn-pappers" href="#" target="_blank" title="Fiche Entreprise (Pappers)" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition shrink-0">
+                            <span class="p-1.5 rounded-lg bg-white/10 group-hover:bg-white/20 text-white transition shrink-0">
                                 <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
-                            </a>
-                        </div>
+                            </span>
+                        </a>
                     </div>
                 </div>
 
