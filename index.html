@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estampille Sanitaire CE - Origine Usine & Traçabilité</title>
+    <title>Estampille Sanitaire CE - Établissement agréé & Traçabilité</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -33,7 +33,7 @@
                 <div class="flex items-baseline gap-2 truncate">
                     <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Estampille Sanitaire CE</h1>
                     <span class="text-xs text-slate-400 hidden sm:inline">•</span>
-                    <p class="text-xs text-slate-500 truncate hidden xs:inline sm:inline">Traçabilité & Origine Usine (DGAL)</p>
+                    <p class="text-xs text-slate-500 truncate hidden xs:inline sm:inline">Établissements agréés CE (DGAL)</p>
                 </div>
             </div>
             <div class="text-[11px] text-slate-400 shrink-0 font-medium">
@@ -148,7 +148,7 @@
                     <!-- Adresse + Bouton Itinéraire GPS & Bouton Satellite -->
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
                         <div class="min-w-0 flex-1">
-                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Adresse de l'usine</span>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">Adresse de l'établissement</span>
                             <p id="res-adresse" class="text-xs sm:text-sm font-semibold text-slate-800 truncate">--</p>
                             <p id="res-cp-ville" class="text-[11px] sm:text-xs text-slate-600 font-medium">--</p>
                         </div>
@@ -196,7 +196,7 @@
                     <i data-lucide="satellite" class="w-4 h-4"></i>
                 </div>
                 <div class="min-w-0">
-                    <h3 id="modal-title-etab" class="text-sm font-bold truncate">Vue Satellite Usine</h3>
+                    <h3 id="modal-title-etab" class="text-sm font-bold truncate">Vue satellite de l'établissement</h3>
                     <p id="modal-subtitle-addr" class="text-xs text-slate-400 truncate">Localisation Google Maps...</p>
                 </div>
             </div>
@@ -235,25 +235,35 @@
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-1">Sources officielles</h4>
                     <p>Cette application exploite le fichier officiel des établissements agréés au titre du paquet hygiène (Règlement CE n°853/2004) publié par la <strong>Direction Générale de l'Alimentation (DGAL)</strong> du Ministère de l'Agriculture et de la Souveraineté alimentaire.</p>
-                    <p id="about-dgal-count" class="mt-1 font-medium text-blue-600">Nombre d'usines DGAL référencées : chargement en cours...</p>
+                    <p id="about-dgal-count" class="mt-1 font-medium text-blue-600">Établissements agréés référencés : chargement en cours...</p>
                 </div>
 
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & RGPD</h4>
-                    <p>Aucune donnée personnelle n'est collectée ou stockée sur l'appareil de l'utilisateur. Les recherches et analyses d'images par IA sont traitées à la volée sans enregistrement persistant d'historique privé.</p>
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                    <h4 class="font-semibold text-amber-900 mb-1">Comment lire le résultat</h4>
+                    <p class="text-amber-900/90">L'estampille ovale identifie l'<strong>établissement agréé</strong> qui a préparé, transformé, conditionné ou stocké le produit en dernier. Ce n'est pas forcément le lieu de production des matières premières, ni le propriétaire de la marque : un même établissement peut fabriquer pour plusieurs marques. Figurer dans la liste ne constitue pas une garantie de conformité. Les données sont celles du fichier officiel et peuvent être incomplètes ou en retard sur la réalité.</p>
                 </div>
 
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-1">Fonctionnement</h4>
-                    <p>L'intelligence artificielle (modèle Groq Vision) permet de décoder les estampilles sanitaires ovales présentes sur les emballages alimentaires pour identifier instantanément l'usine de fabrication et sa conformité réglementaire.</p>
+                    <p>Une IA de lecture d'image (Groq Vision) lit le numéro d'agrément sur la photo, puis l'application le recherche dans la liste officielle. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
                 </div>
 
-                <!-- Ajout de la section Soutenir le projet -->
-                <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100">
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & données</h4>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) au service d'IA Groq pour lire le numéro. L'application ne les enregistre pas ; leur traitement par Groq est soumis à la politique de confidentialité de ce service.</li>
+                        <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
+                        <li><strong>Liste officielle</strong> : téléchargée via le relais et conservée dans le navigateur pour accélérer l'application.</li>
+                        <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
+                        <li><strong>Services tiers</strong> : la vue satellite (Google Maps) et le lien Pappers ouvrent des services externes qui ont leur propre politique.</li>
+                    </ul>
+                </div>
+
+                <div id="sponsor-block" class="hidden p-3 bg-blue-50/60 rounded-xl border border-blue-100">
                     <h4 class="font-semibold text-blue-900 mb-1 flex items-center gap-1.5">
                         <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i> Soutenir le projet
                     </h4>
-                    <p class="text-slate-700">Ce service est entièrement gratuit et sans publicité. Si cet outil vous est utile, vous pouvez <a href="https://github.sponsors.com/VOTRE_ORGANISATION" target="_blank" class="text-blue-600 hover:underline font-semibold inline-flex items-center gap-0.5">m'offrir un café via GitHub Sponsors <i data-lucide="external-link" class="w-3 h-3"></i></a> pour soutenir son développement !</p>
+                    <p class="text-slate-700">Ce service est gratuit et sans publicité. S'il vous est utile, vous pouvez <a id="sponsor-link" href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-semibold inline-flex items-center gap-0.5">me soutenir via GitHub Sponsors <i data-lucide="external-link" class="w-3 h-3"></i></a>.</p>
                 </div>
             </div>
 
@@ -280,6 +290,9 @@
             { name: "Copie locale du dépôt", url: "./ETAB_AGR_853.txt", live: false }
         ];
         const MIN_EXPECTED_RECORDS = 1000;
+
+        // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
+        const SPONSOR_URL = "";
         const CACHE_MAX_AGE_MS = 12 * 3600 * 1000; // pas de nouveau téléchargement si le cache a moins de 12 h
 
         // IndexedDB Cache
@@ -462,7 +475,7 @@
 
             const when = !live ? ' · copie de secours, peut ne pas être à jour'
                 : (timestamp ? ` · liste chargée le ${new Date(timestamp).toLocaleDateString('fr-FR')}` : '');
-            setDbStatusText(`Nombre d'usines DGAL référencées : ${records.length.toLocaleString('fr-FR')} (${sourceName}${when})`);
+            setDbStatusText(`Établissements agréés référencés : ${records.length.toLocaleString('fr-FR')} (${sourceName}${when})`);
         }
 
         function readDbMeta() {
@@ -520,7 +533,7 @@
             // C. Aucune source joignable
             if (usingCache) {
                 const when = meta && meta.time ? ` du ${new Date(meta.time).toLocaleDateString('fr-FR')}` : '';
-                setDbStatusText(`Mise à jour impossible : liste enregistrée${when} utilisée (${allRecordsList.length.toLocaleString('fr-FR')} usines).`, true);
+                setDbStatusText(`Mise à jour impossible : liste enregistrée${when} utilisée (${allRecordsList.length.toLocaleString('fr-FR')} établissements).`, true);
             } else {
                 dbLoadState = 'failed';
                 setDbStatusText("Liste officielle indisponible pour le moment.", true);
@@ -862,6 +875,10 @@
         // Initialisation des écouteurs
         document.addEventListener('DOMContentLoaded', () => {
             refreshIcons();
+            if (SPONSOR_URL) {
+                document.getElementById('sponsor-link').href = SPONSOR_URL;
+                document.getElementById('sponsor-block').classList.remove('hidden');
+            }
             loadOfficialDatabase();
 
             const cameraInput = document.getElementById('camera-input');
