@@ -478,11 +478,13 @@
         // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
         const SPONSOR_URL = "";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.10";
+        const APP_VERSION = "2026.11.10c";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
         const ZOOM_MAX = 3;           // estampilles relues de près au maximum par photo
+        const ZOOM_BUDGET_MS = 9000;  // relecture de près seulement si la 1re lecture a été rapide
+        const DETECT_MAX_SIDE = 1280; // côté max de la photo envoyée (plus grand = plus lent)
         const CONTACT_MAX_PHOTOS = 3;
 
         const CACHE_MAX_AGE_MS = 12 * 3600 * 1000; // pas de nouveau téléchargement si le cache a moins de 12 h
@@ -1294,7 +1296,7 @@
 
                 let small;
                 try {
-                    small = await resizeImage(dataUrl, 1600, 0.85);
+                    small = await resizeImage(dataUrl, DETECT_MAX_SIDE, 0.85);
                 } catch (e) {
                     throw new ScanError("Le navigateur ne sait pas ouvrir cette image", { kind: 'image' });
                 }
@@ -1304,20 +1306,26 @@
                     envoyee: `${small.width}x${small.height}`, envoyeeOctets: Math.round(small.dataUrl.length * 0.75)
                 });
 
-                // 1. Repérage et première lecture
-                const detect = await callOcr({ image: small.dataUrl });
+                // 1. Repérage et première lecture (message rassurant si le service est lent)
+                const slowTimer = setTimeout(() => setScanStatus("Lecture en cours…", "Le service est un peu lent, encore quelques secondes"), 7000);
+                let detect;
+                try { detect = await callOcr({ image: small.dataUrl }); } finally { clearTimeout(slowTimer); }
                 lastScan.diag = { detection: detect.diag || null };
                 let readings = Array.isArray(detect.estampilles) ? detect.estampilles
                     : (detect.agrement ? [{ numero: detect.agrement, pays: '', lisibilite: 'partielle', box: null }] : []);
                 const stamps = readings.map(r => ({ reading: r, box: r.box || null, crop: null, ...analyseReading(r) }));
                 stamps.forEach(st => {
-                    if (st.box) { try { st.crop = cropFromBox(small.source, st.box); } catch (e) { st.crop = null; } }
+                    if (st.box) { try { st.crop = cropFromBox(small.source, st.box, 0.25, 768); } catch (e) { st.crop = null; } }
                 });
 
-                // 2. Relecture de près des ovales douteux
-                const toZoom = stamps.filter(st => st.crop && st.status !== 'foreign'
+                // 2. Relecture de près des ovales douteux, seulement quand la photo en contient plusieurs
+                //    (chacun y est petit). Pour une estampille seule, cadrée par l'utilisateur, le gros plan
+                //    n'apporte presque rien et la recherche des numéros proches corrige déjà un caractère.
+                const toZoom = stamps.length < 2 ? [] : stamps.filter(st => st.crop && st.status !== 'foreign'
                     && !(st.status === 'exact' && st.reading.lisibilite === 'nette')).slice(0, ZOOM_MAX);
-                if (toZoom.length) {
+                const elapsed = Date.now() - started;
+                if (toZoom.length && elapsed > ZOOM_BUDGET_MS) lastScan.diag.zoomSkipped = `1re lecture trop longue (${elapsed} ms)`;
+                if (toZoom.length && elapsed <= ZOOM_BUDGET_MS) {
                     setScanStatus("Lecture de près…", toZoom.length > 1 ? `${toZoom.length} estampilles à vérifier` : "Vérification du numéro");
                     try {
                         const zoom = await callOcr({ task: 'zoom', images: toZoom.map(st => st.crop) });
