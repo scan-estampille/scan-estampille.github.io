@@ -4,7 +4,8 @@
 //      écrasait l'appli enregistrée sous index.html). Le changement de version purge
 //      les caches v3 éventuellement corrompus.
 // v5 : nouveau CSS (encart de signalement, modale de contact).
-const VERSION = 'v5';
+// v6 : lecture de plusieurs estampilles (liste avec vignettes).
+const VERSION = 'v6';
 const CACHE = `estampille-${VERSION}`;
 
 const APP_SHELL = [

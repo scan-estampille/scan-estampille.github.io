@@ -349,13 +349,13 @@
 
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-1">Fonctionnement</h4>
-                    <p>Une IA de lecture d'image (Groq Vision) lit le numéro d'agrément sur la photo, puis l'application le recherche dans la liste officielle. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
+                    <p>Une IA de lecture d'image repère chaque estampille ovale de la photo et lit son numéro ; un ovale difficile est relu de près. L'application recherche ensuite chaque numéro dans la liste officielle. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
                 </div>
 
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & données</h4>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) au service d'IA Groq pour lire le numéro. L'application ne les enregistre pas ; leur traitement par Groq est soumis à la politique de confidentialité de ce service.</li>
+                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Cloudflare Workers AI, ou Groq en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
                         <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
                         <li><strong>Liste officielle</strong> : téléchargée via le relais et conservée dans le navigateur pour accélérer l'application.</li>
                         <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
@@ -478,10 +478,11 @@
         // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
         const SPONSOR_URL = "";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.09";
+        const APP_VERSION = "2026.11.10";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
-        const OCR_TIMEOUT_MS = 30000;
+        const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
+        const ZOOM_MAX = 3;           // estampilles relues de près au maximum par photo
         const CONTACT_MAX_PHOTOS = 3;
 
         const CACHE_MAX_AGE_MS = 12 * 3600 * 1000; // pas de nouveau téléchargement si le cache a moins de 12 h
@@ -847,9 +848,17 @@
         }
 
         // Liste de choix : un titre court, les établissements, et éventuellement un lien de signalement
-        function renderCandidates(list, { heading = '', fromScan = false, reportLink = false } = {}) {
+        function renderCandidates(list, { heading = '', fromScan = false, reportLink = false, back = null } = {}) {
             const box = document.getElementById('candidates-box');
             box.innerHTML = '';
+            if (back) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
+                b.textContent = '← Toutes les estampilles de la photo';
+                b.addEventListener('click', back);
+                box.appendChild(b);
+            }
             if (heading) {
                 const h = document.createElement('p');
                 h.className = 'text-xs sm:text-sm font-medium text-slate-700 px-1';
@@ -896,7 +905,10 @@
                 const more = res.total > res.results.length ? ` (${res.results.length} premiers affichés)` : '';
                 renderCandidates(res.results, { heading: `${res.total} résultats pour « ${query} »${more}`, fromScan });
             } else if (res.mode === 'near') {
-                renderCandidates(res.results, { heading: `${query} n'existe pas. Vouliez-vous dire :`, fromScan, reportLink: fromScan });
+                const heading = query.includes('?')
+                    ? `Lecture partielle (${query}). Est-ce l'un de ces établissements ?`
+                    : `${query} n'existe pas. Vouliez-vous dire :`;
+                renderCandidates(res.results, { heading, fromScan, reportLink: fromScan });
             } else if (fromScan) {
                 showScanReport('notfound');
             } else {
@@ -1077,10 +1089,10 @@
         // === ESPÈCES (fin) ===
 
         // Affichage des résultats
-        function displayEstablishment(etab, { fromScan = false } = {}) {
+        function displayEstablishment(etab, { fromScan = false, keepCandidates = false } = {}) {
             currentEtab = etab;
             hideNotification();
-            hideCandidates();
+            if (!keepCandidates) hideCandidates();
             hideScanReport();
             document.getElementById('res-scan-note').classList.toggle('hidden', !fromScan);
 
@@ -1148,6 +1160,7 @@
                     canvas.height = Math.round(img.height * scale);
                     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve({
+                        source: img, // image d'origine en pleine résolution, pour découper les ovales
                         dataUrl: canvas.toDataURL('image/jpeg', quality),
                         width: canvas.width, height: canvas.height,
                         originalWidth: img.width, originalHeight: img.height
@@ -1166,8 +1179,10 @@
             constructor(message, info = {}) { super(message); Object.assign(this, info); }
         }
 
-        // OCR via le proxy (la clé API n'est jamais exposée au navigateur)
-        async function runOcrAnalysis(smallImage) {
+        // Appel au relais de lecture (les clés des services d'IA ne sont jamais exposées au navigateur)
+        //   { image }                → { estampilles: [{ numero, pays, mention, lisibilite, box }], diag }
+        //   { task: 'zoom', images } → { lectures: [{ image, numero, pays, mention, lisibilite }], diag }
+        async function callOcr(body) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), OCR_TIMEOUT_MS);
             let resp;
@@ -1175,7 +1190,7 @@
                 resp = await fetch(OCR_PROXY_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ image: smallImage }),
+                    body: JSON.stringify(body),
                     signal: controller.signal
                 });
             } catch (e) {
@@ -1192,11 +1207,69 @@
                     status: resp.status, serverError: data.error || null, serverCode: data.code || null, diag: data.diag || null
                 });
             }
-            return { code: data.agrement || '', diag: data.diag || null };
+            return data;
         }
+
+        // Découpe un ovale (boîte 0-1000 renvoyée par l'IA) dans l'image d'origine, avec une marge
+        function cropFromBox(img, box, margin = 0.25, maxSide = 900) {
+            const [y0, x0, y1, x1] = box;
+            const W = img.width, H = img.height;
+            const bw = (x1 - x0) / 1000 * W, bh = (y1 - y0) / 1000 * H;
+            const sx = Math.max(0, x0 / 1000 * W - bw * margin), sy = Math.max(0, y0 / 1000 * H - bh * margin);
+            const sw = Math.min(W - sx, bw * (1 + 2 * margin)), sh = Math.min(H - sy, bh * (1 + 2 * margin));
+            if (sw < 8 || sh < 8) return null;
+            const scale = Math.min(1, maxSide / Math.max(sw, sh));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(sw * scale);
+            canvas.height = Math.round(sh * scale);
+            canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        // Numéro avec caractères illisibles (« ? ») : établissements dont le numéro correspond.
+        // Ce ne sont que des suggestions : l'utilisateur choisit lui-même.
+        function lookupPattern(numero) {
+            if (!isDbLoaded) return { mode: 'notloaded', results: [], total: 0 };
+            const pat = numero.toUpperCase().replace(/^FR\s*/, '').replace(/\s*CE$/, '').replace(/[^0-9A-Z?]/g, '');
+            const unknown = (pat.match(/\?/g) || []).length;
+            if (!unknown || unknown > 2 || pat.length < 6) return { mode: 'none', results: [], total: 0 };
+            const re = new RegExp('^' + pat.replace(/\?/g, '[0-9A-Z]') + '$');
+            const results = [];
+            for (const [code, list] of etablissementsMap) {
+                if (re.test(code)) results.push(...mergeSameSite(list));
+                if (results.length >= 8) break;
+            }
+            return { mode: results.length ? 'near' : 'none', results: results.slice(0, 8), total: results.length };
+        }
+
+        // Ce que vaut une lecture : trouvée, à vérifier, étrangère, illisible…
+        function analyseReading(r) {
+            const code = ((r && r.numero) || '').trim();
+            if (!code) return { status: 'unreadable', res: null, code: '' };
+            if (r.pays && r.pays !== 'FR') return { status: 'foreign', res: null, code };
+            if (code.includes('?')) {
+                const res = lookupPattern(code);
+                return { status: res.mode === 'notloaded' ? 'notloaded' : (res.results.length ? 'near' : 'none'), res, code };
+            }
+            if (!looksLikeAgrementCode(code)) return { status: 'uncertain', res: null, code };
+            const res = lookupEstablishment(code);
+            const status = { exact: 'exact', multiple: 'multiple', near: 'near', notloaded: 'notloaded' }[res.mode] || 'none';
+            return { status, res, code };
+        }
+
+        const STATUS_SCORE = { exact: 5, multiple: 4, foreign: 4, near: 3, notloaded: 2, uncertain: 1, none: 1, unreadable: 0 };
 
         const OFFLINE_PHOTO_MSG = "Hors ligne : la lecture de photo est impossible. Saisissez le numéro à la main, la recherche fonctionne sans connexion.";
 
+        function setScanStatus(title, detail) {
+            document.getElementById('scan-status-title').textContent = title;
+            document.getElementById('scan-status-detail').textContent = detail;
+        }
+
+        // 1. L'IA repère chaque ovale et lit son numéro.
+        // 2. Chaque ovale douteux (lecture partielle ou numéro absent de la liste) est découpé dans la
+        //    photo d'origine, en pleine résolution, et relu de près. La meilleure lecture est gardée.
+        // 3. Chaque numéro est vérifié dans la liste officielle ; rien n'est jamais deviné.
         async function handleImageFile(file) {
             if (!file) return;
             resetFeedback();
@@ -1208,12 +1281,11 @@
 
             const progressBox = document.getElementById('scan-progress-box');
             const previewImg = document.getElementById('scanned-image-preview');
-            document.getElementById('scan-status-title').textContent = "Lecture de l'estampille…";
-            document.getElementById('scan-status-detail').textContent = "Recherche du numéro d'agrément";
+            setScanStatus("Recherche des estampilles…", "Repérage des ovales sur la photo");
             progressBox.classList.remove('hidden');
 
             const started = Date.now();
-            lastScan = { reason: null, image: null, code: null, lookupMode: null, diag: null, error: null,
+            lastScan = { reason: null, image: null, code: null, lookupMode: null, diag: null, error: null, stamps: null,
                          imageInfo: { type: file.type || '?', bytes: file.size } };
 
             try {
@@ -1222,7 +1294,7 @@
 
                 let small;
                 try {
-                    small = await resizeImage(dataUrl);
+                    small = await resizeImage(dataUrl, 1600, 0.85);
                 } catch (e) {
                     throw new ScanError("Le navigateur ne sait pas ouvrir cette image", { kind: 'image' });
                 }
@@ -1232,30 +1304,60 @@
                     envoyee: `${small.width}x${small.height}`, envoyeeOctets: Math.round(small.dataUrl.length * 0.75)
                 });
 
-                const { code, diag } = await runOcrAnalysis(small.dataUrl);
-                lastScan.code = code || null;
-                lastScan.diag = diag;
-                lastScan.ms = Date.now() - started;
+                // 1. Repérage et première lecture
+                const detect = await callOcr({ image: small.dataUrl });
+                lastScan.diag = { detection: detect.diag || null };
+                let readings = Array.isArray(detect.estampilles) ? detect.estampilles
+                    : (detect.agrement ? [{ numero: detect.agrement, pays: '', lisibilite: 'partielle', box: null }] : []);
+                const stamps = readings.map(r => ({ reading: r, box: r.box || null, crop: null, ...analyseReading(r) }));
+                stamps.forEach(st => {
+                    if (st.box) { try { st.crop = cropFromBox(small.source, st.box); } catch (e) { st.crop = null; } }
+                });
 
-                if (!code) {
-                    showScanReport('unread');
-                } else {
-                    document.getElementById('manual-code-input').value = code;
-                    document.getElementById('clear-search-btn').classList.remove('hidden');
-                    if (looksLikeAgrementCode(code)) {
-                        const res = lookupEstablishment(code);
-                        lastScan.lookupMode = res.mode;
-                        lastScan.reason = res.mode === 'exact' ? null : res.mode;
-                        showLookupResult(res, code, 'scan');
-                    } else {
-                        showScanReport('uncertain');
+                // 2. Relecture de près des ovales douteux
+                const toZoom = stamps.filter(st => st.crop && st.status !== 'foreign'
+                    && !(st.status === 'exact' && st.reading.lisibilite === 'nette')).slice(0, ZOOM_MAX);
+                if (toZoom.length) {
+                    setScanStatus("Lecture de près…", toZoom.length > 1 ? `${toZoom.length} estampilles à vérifier` : "Vérification du numéro");
+                    try {
+                        const zoom = await callOcr({ task: 'zoom', images: toZoom.map(st => st.crop) });
+                        lastScan.diag.zoom = zoom.diag || null;
+                        (zoom.lectures || []).forEach(l => {
+                            const st = toZoom[l.image - 1];
+                            if (!st) return;
+                            const a = analyseReading(l);
+                            st.zoom = { numero: l.numero, lisibilite: l.lisibilite, status: a.status };
+                            const better = STATUS_SCORE[a.status] > STATUS_SCORE[st.status]
+                                || (STATUS_SCORE[a.status] === STATUS_SCORE[st.status] && l.lisibilite === 'nette' && st.reading.lisibilite !== 'nette');
+                            if (better) Object.assign(st, { reading: { ...l, box: st.box }, status: a.status, res: a.res, code: a.code, fromZoom: true });
+                        });
+                    } catch (e) {
+                        // La relecture est un bonus : son échec ne bloque pas le résultat
+                        lastScan.diag.zoomError = e.message || String(e);
                     }
                 }
+
+                // Une même estampille imprimée plusieurs fois n'est montrée qu'une fois
+                const seen = new Set();
+                const unique = stamps.filter(st => {
+                    if (!st.code) return true;
+                    const key = cleanAgrementCode(st.code) + '|' + (st.reading.pays || '');
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                lastScan.ms = Date.now() - started;
+                lastScan.stamps = unique.map(st => ({
+                    numero: st.code || null, pays: st.reading.pays || null, lisibilite: st.reading.lisibilite,
+                    resultat: st.status, relu: st.zoom || null, box: st.box
+                }));
+                presentStamps(unique);
             } catch (err) {
                 lastScan.ms = Date.now() - started;
                 lastScan.error = { message: err.message, kind: err.kind || 'inconnu', status: err.status || null,
                                    serverError: err.serverError || null, serverCode: err.serverCode || null, name: err.name };
-                if (err.diag) lastScan.diag = err.diag;
+                if (err.diag) lastScan.diag = { ...(lastScan.diag || {}), erreur: err.diag };
                 if (!(err instanceof ScanError)) console.error(err);
 
                 if (err.kind === 'offline') {
@@ -1268,6 +1370,124 @@
             } finally {
                 progressBox.classList.add('hidden');
             }
+        }
+
+        const COUNTRY_NAMES = { ES: 'espagnole', DE: 'allemande', IT: 'italienne', BE: 'belge', NL: 'néerlandaise',
+            PL: 'polonaise', IE: 'irlandaise', UK: 'britannique', GB: 'britannique', PT: 'portugaise', DK: 'danoise',
+            AT: 'autrichienne', CH: 'suisse', LU: 'luxembourgeoise', GR: 'grecque', EL: 'grecque', SE: 'suédoise', FI: 'finlandaise' };
+
+        // Affiche le résultat d'une photo : une estampille → comme une recherche ;
+        // plusieurs → la liste de TOUTES les estampilles repérées, lisibles ou non
+        function presentStamps(stamps) {
+            const readable = stamps.filter(st => st.status !== 'unreadable');
+            if (readable.length === 0) {
+                showScanReport('unread');
+                return;
+            }
+            if (stamps.length > 1) {
+                document.getElementById('manual-code-input').value = '';
+                document.getElementById('clear-search-btn').classList.add('hidden');
+                lastScan.lookupMode = 'plusieurs';
+                renderStampList(stamps);
+                return;
+            }
+
+            const st = readable[0];
+            lastScan.code = st.code;
+            lastScan.lookupMode = st.res ? st.res.mode : st.status;
+            document.getElementById('manual-code-input').value = st.code;
+            document.getElementById('clear-search-btn').classList.remove('hidden');
+
+            if (st.status === 'foreign') {
+                const nat = COUNTRY_NAMES[st.reading.pays];
+                showNotification(`Estampille ${nat || 'étrangère'} (${st.reading.pays} ${st.code}) : la liste officielle ne couvre que les établissements français.`, 'info');
+            } else if (st.status === 'uncertain') {
+                showScanReport('uncertain');
+            } else {
+                showLookupResult(st.res, st.code, 'scan');
+            }
+        }
+
+        function stampStatusText(st) {
+            const n = st.res ? st.res.total : 0;
+            switch (st.status) {
+                case 'exact': { const e = st.res.results[0]; return `${e.raisonSociale || 'Nom non précisé'} · ${e.commune || ''}`.trim(); }
+                case 'multiple': return `${n} établissements avec ce numéro`;
+                case 'near': return st.code.includes('?')
+                    ? `Lecture partielle · ${n} possibilité${n > 1 ? 's' : ''}`
+                    : `Introuvable tel quel · ${n} suggestion${n > 1 ? 's' : ''}`;
+                case 'foreign': return `Établissement hors de France (${st.reading.pays})`;
+                case 'uncertain': return 'Lecture incertaine';
+                case 'notloaded': return 'Liste en cours de chargement';
+                case 'unreadable': return 'Illisible';
+                default: return 'Introuvable dans la liste officielle';
+            }
+        }
+
+        // Liste des estampilles d'une photo : vignette de l'ovale, numéro lu, établissement trouvé
+        function renderStampList(stamps) {
+            resetFeedback();
+            const box = document.getElementById('candidates-box');
+            box.innerHTML = '';
+            const backToList = () => renderStampList(stamps);
+
+            const h = document.createElement('p');
+            h.className = 'text-xs sm:text-sm font-medium text-slate-700 px-1';
+            h.textContent = `${stamps.length} estampilles sur la photo`;
+            box.appendChild(h);
+
+            stamps.forEach((st, i) => {
+                const clickable = ['exact', 'multiple', 'near'].includes(st.status);
+                const row = document.createElement(clickable ? 'button' : 'div');
+                if (clickable) row.type = 'button';
+                row.className = 'w-full text-left bg-white border border-slate-200 rounded-xl px-2.5 py-2 flex items-center gap-2.5'
+                    + (clickable ? ' hover:border-blue-400 hover:bg-blue-50 transition active:scale-[0.99]' : '');
+
+                if (st.crop) {
+                    const img = document.createElement('img');
+                    img.src = st.crop;
+                    img.alt = `Estampille ${i + 1}`;
+                    img.className = 'w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0';
+                    row.appendChild(img);
+                }
+                const text = document.createElement('div');
+                text.className = 'min-w-0 flex-1';
+                const code = document.createElement('div');
+                code.className = 'text-xs sm:text-sm font-semibold text-slate-800 font-mono';
+                code.textContent = st.code ? `${st.reading.pays || 'FR'} ${st.code}` : `Estampille ${i + 1}`;
+                const status = document.createElement('div');
+                status.className = 'text-[11px] truncate ' + (st.status === 'exact' ? 'text-emerald-800' : 'text-slate-500');
+                status.textContent = stampStatusText(st);
+                text.append(code, status);
+                row.appendChild(text);
+
+                if (st.status === 'exact') {
+                    row.addEventListener('click', () => displayEstablishment(st.res.results[0], { fromScan: true, keepCandidates: true }));
+                } else if (clickable) {
+                    row.addEventListener('click', () => {
+                        lastScan.code = st.code;
+                        renderCandidates(st.res.results, {
+                            heading: st.status === 'multiple' ? `${st.res.total} établissements portent le numéro ${st.code} :`
+                                : (st.code.includes('?') ? `Lecture partielle (${st.code}). Est-ce l'un de ces établissements ?`
+                                : `${st.code} n'existe pas. Vouliez-vous dire :`),
+                            fromScan: true, reportLink: true, back: backToList
+                        });
+                    });
+                }
+                box.appendChild(row);
+            });
+
+            const link = document.createElement('button');
+            link.type = 'button';
+            link.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
+            link.textContent = "Une estampille mal lue ? Envoyer la photo à l'auteur";
+            link.addEventListener('click', () => {
+                if (lastScan) lastScan.reason = 'plusieurs estampilles';
+                openContact({ kind: 'scan', withScan: true });
+            });
+            box.appendChild(link);
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'start' });
         }
 
         // Encart après une photo non lue
@@ -1315,6 +1535,7 @@
                 dureeMs: scan.ms ?? null,
                 erreur: scan.error || null,
                 ocr: scan.diag || null,
+                estampilles: scan.stamps || null,
                 image: scan.imageInfo || null,
                 liste: {
                     source: meta.source || null,
