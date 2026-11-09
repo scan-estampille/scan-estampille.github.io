@@ -355,7 +355,7 @@
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & données</h4>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Cloudflare Workers AI, ou Groq en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
+                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Groq, ou Cloudflare Workers AI en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
                         <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
                         <li><strong>Liste officielle</strong> : téléchargée via le relais et conservée dans le navigateur pour accélérer l'application.</li>
                         <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
@@ -478,7 +478,7 @@
         // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
         const SPONSOR_URL = "";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.10c";
+        const APP_VERSION = "2026.11.10d";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
