@@ -478,7 +478,7 @@
         // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
         const SPONSOR_URL = "";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.12b";
+        const APP_VERSION = "2026.11.12c";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -1388,7 +1388,7 @@
             const svg = document.createElementNS(NS, 'svg');
             svg.setAttribute('viewBox', '0 0 100 100');
             svg.setAttribute('aria-hidden', 'true');
-            svg.setAttribute('class', 'w-14 h-14 shrink-0 rounded-lg bg-slate-50 border border-slate-200 '
+            svg.setAttribute('class', 'w-10 h-10 shrink-0 rounded-md bg-slate-50 border border-slate-200 '
                 + (st.status === 'exact' ? 'text-slate-800' : 'text-slate-400'));
             const g = document.createElementNS(NS, 'g');
             g.setAttribute('transform', 'rotate(-35 50 50)');
