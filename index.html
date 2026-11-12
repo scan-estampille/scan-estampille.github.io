@@ -478,12 +478,10 @@
         // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
         const SPONSOR_URL = "";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.10d";
+        const APP_VERSION = "2026.11.12b";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
-        const ZOOM_MAX = 3;           // estampilles relues de près au maximum par photo
-        const ZOOM_BUDGET_MS = 9000;  // relecture de près seulement si la 1re lecture a été rapide
         const DETECT_MAX_SIDE = 1280; // côté max de la photo envoyée (plus grand = plus lent)
         const CONTACT_MAX_PHOTOS = 3;
 
@@ -1162,7 +1160,6 @@
                     canvas.height = Math.round(img.height * scale);
                     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve({
-                        source: img, // image d'origine en pleine résolution, pour découper les ovales
                         dataUrl: canvas.toDataURL('image/jpeg', quality),
                         width: canvas.width, height: canvas.height,
                         originalWidth: img.width, originalHeight: img.height
@@ -1183,7 +1180,6 @@
 
         // Appel au relais de lecture (les clés des services d'IA ne sont jamais exposées au navigateur)
         //   { image }                → { estampilles: [{ numero, pays, mention, lisibilite, box }], diag }
-        //   { task: 'zoom', images } → { lectures: [{ image, numero, pays, mention, lisibilite }], diag }
         async function callOcr(body) {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), OCR_TIMEOUT_MS);
@@ -1210,22 +1206,6 @@
                 });
             }
             return data;
-        }
-
-        // Découpe un ovale (boîte 0-1000 renvoyée par l'IA) dans l'image d'origine, avec une marge
-        function cropFromBox(img, box, margin = 0.25, maxSide = 900) {
-            const [y0, x0, y1, x1] = box;
-            const W = img.width, H = img.height;
-            const bw = (x1 - x0) / 1000 * W, bh = (y1 - y0) / 1000 * H;
-            const sx = Math.max(0, x0 / 1000 * W - bw * margin), sy = Math.max(0, y0 / 1000 * H - bh * margin);
-            const sw = Math.min(W - sx, bw * (1 + 2 * margin)), sh = Math.min(H - sy, bh * (1 + 2 * margin));
-            if (sw < 8 || sh < 8) return null;
-            const scale = Math.min(1, maxSide / Math.max(sw, sh));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(sw * scale);
-            canvas.height = Math.round(sh * scale);
-            canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL('image/jpeg', 0.9);
         }
 
         // Numéro avec caractères illisibles (« ? ») : établissements dont le numéro correspond.
@@ -1259,7 +1239,6 @@
             return { status, res, code };
         }
 
-        const STATUS_SCORE = { exact: 5, multiple: 4, foreign: 4, near: 3, notloaded: 2, uncertain: 1, none: 1, unreadable: 0 };
 
         const OFFLINE_PHOTO_MSG = "Hors ligne : la lecture de photo est impossible. Saisissez le numéro à la main, la recherche fonctionne sans connexion.";
 
@@ -1268,10 +1247,8 @@
             document.getElementById('scan-status-detail').textContent = detail;
         }
 
-        // 1. L'IA repère chaque ovale et lit son numéro.
-        // 2. Chaque ovale douteux (lecture partielle ou numéro absent de la liste) est découpé dans la
-        //    photo d'origine, en pleine résolution, et relu de près. La meilleure lecture est gardée.
-        // 3. Chaque numéro est vérifié dans la liste officielle ; rien n'est jamais deviné.
+        // 1. L'IA repère chaque ovale et lit son numéro, en une seule requête.
+        // 2. Chaque numéro est vérifié dans la liste officielle ; rien n'est jamais deviné.
         async function handleImageFile(file) {
             if (!file) return;
             resetFeedback();
@@ -1306,44 +1283,16 @@
                     envoyee: `${small.width}x${small.height}`, envoyeeOctets: Math.round(small.dataUrl.length * 0.75)
                 });
 
-                // 1. Repérage et première lecture (message rassurant si le service est lent)
+                // Lecture (message rassurant si le service est lent)
                 const slowTimer = setTimeout(() => setScanStatus("Lecture en cours…", "Le service est un peu lent, encore quelques secondes"), 7000);
                 let detect;
                 try { detect = await callOcr({ image: small.dataUrl }); } finally { clearTimeout(slowTimer); }
                 lastScan.diag = { detection: detect.diag || null };
                 let readings = Array.isArray(detect.estampilles) ? detect.estampilles
                     : (detect.agrement ? [{ numero: detect.agrement, pays: '', lisibilite: 'partielle', box: null }] : []);
-                const stamps = readings.map(r => ({ reading: r, box: r.box || null, crop: null, ...analyseReading(r) }));
-                stamps.forEach(st => {
-                    if (st.box) { try { st.crop = cropFromBox(small.source, st.box, 0.25, 768); } catch (e) { st.crop = null; } }
-                });
-
-                // 2. Relecture de près des ovales douteux, seulement quand la photo en contient plusieurs
-                //    (chacun y est petit). Pour une estampille seule, cadrée par l'utilisateur, le gros plan
-                //    n'apporte presque rien et la recherche des numéros proches corrige déjà un caractère.
-                const toZoom = stamps.length < 2 ? [] : stamps.filter(st => st.crop && st.status !== 'foreign'
-                    && !(st.status === 'exact' && st.reading.lisibilite === 'nette')).slice(0, ZOOM_MAX);
-                const elapsed = Date.now() - started;
-                if (toZoom.length && elapsed > ZOOM_BUDGET_MS) lastScan.diag.zoomSkipped = `1re lecture trop longue (${elapsed} ms)`;
-                if (toZoom.length && elapsed <= ZOOM_BUDGET_MS) {
-                    setScanStatus("Lecture de près…", toZoom.length > 1 ? `${toZoom.length} estampilles à vérifier` : "Vérification du numéro");
-                    try {
-                        const zoom = await callOcr({ task: 'zoom', images: toZoom.map(st => st.crop) });
-                        lastScan.diag.zoom = zoom.diag || null;
-                        (zoom.lectures || []).forEach(l => {
-                            const st = toZoom[l.image - 1];
-                            if (!st) return;
-                            const a = analyseReading(l);
-                            st.zoom = { numero: l.numero, lisibilite: l.lisibilite, status: a.status };
-                            const better = STATUS_SCORE[a.status] > STATUS_SCORE[st.status]
-                                || (STATUS_SCORE[a.status] === STATUS_SCORE[st.status] && l.lisibilite === 'nette' && st.reading.lisibilite !== 'nette');
-                            if (better) Object.assign(st, { reading: { ...l, box: st.box }, status: a.status, res: a.res, code: a.code, fromZoom: true });
-                        });
-                    } catch (e) {
-                        // La relecture est un bonus : son échec ne bloque pas le résultat
-                        lastScan.diag.zoomError = e.message || String(e);
-                    }
-                }
+                // Les positions des ovales renvoyées par l'IA sont trop imprécises pour découper la photo :
+                // on ne s'en sert plus (ni vignette découpée, ni relecture de près). Une seule requête par photo.
+                const stamps = readings.map(r => ({ reading: r, ...analyseReading(r) }));
 
                 // Une même estampille imprimée plusieurs fois n'est montrée qu'une fois
                 const seen = new Set();
@@ -1358,7 +1307,7 @@
                 lastScan.ms = Date.now() - started;
                 lastScan.stamps = unique.map(st => ({
                     numero: st.code || null, pays: st.reading.pays || null, lisibilite: st.reading.lisibilite,
-                    resultat: st.status, relu: st.zoom || null, box: st.box
+                    resultat: st.status
                 }));
                 presentStamps(unique);
             } catch (err) {
@@ -1432,7 +1381,45 @@
             }
         }
 
-        // Liste des estampilles d'une photo : vignette de l'ovale, numéro lu, établissement trouvé
+        // Vignette : un ovale d'estampille dessiné en diagonale (pour remplir le carré), avec le pays,
+        // le numéro réellement lu et « CE ». Purement décoratif : le numéro est aussi écrit à côté.
+        function stampIcon(st) {
+            const NS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.setAttribute('class', 'w-14 h-14 shrink-0 rounded-lg bg-slate-50 border border-slate-200 '
+                + (st.status === 'exact' ? 'text-slate-800' : 'text-slate-400'));
+            const g = document.createElementNS(NS, 'g');
+            g.setAttribute('transform', 'rotate(-35 50 50)');
+            const oval = document.createElementNS(NS, 'ellipse');
+            Object.entries({ cx: 50, cy: 50, rx: 46, ry: 28, fill: 'none', stroke: 'currentColor', 'stroke-width': 3.5 })
+                .forEach(([k, v]) => oval.setAttribute(k, v));
+            g.appendChild(oval);
+            let lines;
+            if (st.code) {
+                lines = [[st.reading.pays || 'FR', 38, 10.5], [st.code, 54.5, st.code.length > 10 ? 9 : 11], ['CE', 69, 10]];
+            } else {
+                // Estampille illisible : un grand « ? », avec le pays et/ou la mention seulement s'ils ont été lus
+                const top = st.reading.pays || '', bottom = st.reading.mention || '';
+                lines = [];
+                if (top) lines.push([top, 34, 10.5]);
+                lines.push(['?', top && bottom ? 60 : top ? 64 : bottom ? 57 : 63, top || bottom ? 28 : 38]);
+                if (bottom) lines.push([bottom, 74, 10]);
+            }
+            lines.forEach(([txt, y, size]) => {
+                const t = document.createElementNS(NS, 'text');
+                Object.entries({ x: 50, y, 'text-anchor': 'middle', 'font-size': size, 'font-weight': 700,
+                    'font-family': 'ui-monospace, Menlo, Consolas, monospace', fill: 'currentColor' })
+                    .forEach(([k, v]) => t.setAttribute(k, v));
+                t.textContent = txt;
+                g.appendChild(t);
+            });
+            svg.appendChild(g);
+            return svg;
+        }
+
+        // Liste des estampilles d'une photo : ovale avec le numéro lu, établissement trouvé
         function renderStampList(stamps) {
             resetFeedback();
             const box = document.getElementById('candidates-box');
@@ -1451,13 +1438,7 @@
                 row.className = 'w-full text-left bg-white border border-slate-200 rounded-xl px-2.5 py-2 flex items-center gap-2.5'
                     + (clickable ? ' hover:border-blue-400 hover:bg-blue-50 transition active:scale-[0.99]' : '');
 
-                if (st.crop) {
-                    const img = document.createElement('img');
-                    img.src = st.crop;
-                    img.alt = `Estampille ${i + 1}`;
-                    img.className = 'w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0';
-                    row.appendChild(img);
-                }
+                row.appendChild(stampIcon(st));
                 const text = document.createElement('div');
                 text.className = 'min-w-0 flex-1';
                 const code = document.createElement('div');
