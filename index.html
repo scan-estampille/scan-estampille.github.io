@@ -361,7 +361,7 @@
                         <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
                         <li><strong>Statistiques de fréquentation</strong> : mesure d'audience anonyme par Cloudflare Web Analytics, sans cookie ni identifiant enregistré sur votre appareil (pages vues, pays, type d'appareil). Ces statistiques servent uniquement à suivre l'utilisation de l'application.</li>
                         <li><strong>Messages à l'auteur</strong> : votre message, votre adresse e-mail si vous la donnez, les photos jointes et les détails techniques passent par le relais (Cloudflare) et le service d'envoi Resend, puis arrivent par e-mail chez l'auteur. Ils servent uniquement à vous répondre et à améliorer l'application.</li>
-                        <li><strong>Services tiers</strong> : la vue satellite (Google Maps) et le lien Pappers ouvrent des services externes qui ont leur propre politique.</li>
+                        <li><strong>Services tiers</strong> : la vue satellite (Google Maps), le lien Pappers et le lien de don (Liberapay) ouvrent des services externes qui ont leur propre politique. Aucune donnée n'est transmise à Liberapay depuis l'application : c'est un simple lien.</li>
                     </ul>
                 </div>
 
@@ -374,11 +374,15 @@
                 </div>
 
                 <div id="sponsor-block" class="hidden p-3 bg-blue-50/60 rounded-xl border border-blue-100">
-                    <h4 class="font-semibold text-blue-900 mb-1 flex items-center gap-1.5">
-                        <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i> Soutenir le projet
-                    </h4>
-                    <p class="text-slate-700">Ce service est gratuit et sans publicité. S'il vous est utile, vous pouvez <a id="sponsor-link" href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-semibold inline-flex items-center gap-0.5">me soutenir via GitHub Sponsors <i data-lucide="external-link" class="w-3 h-3"></i></a>.</p>
-                </div>
+    <h4 class="font-semibold text-blue-900 mb-1 flex items-center gap-1.5">
+        <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i> Soutenir le projet
+    </h4>
+    <p class="text-slate-700">Ce service est gratuit et sans publicité. S'il vous est utile, vous pouvez contribuer à ses frais de fonctionnement par un don libre sur Liberapay, une plateforme à but non lucratif. Vous choisissez le montant et le rythme (hebdomadaire, mensuel ou annuel), et vous pouvez arrêter à tout moment.</p>
+    <a id="sponsor-link" href="#" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs sm:text-sm font-semibold transition active:scale-95">
+        <i data-lucide="heart-handshake" class="w-4 h-4"></i><span>Faire un don sur Liberapay</span>
+        <i data-lucide="external-link" class="w-3 h-3"></i>
+    </a>
+</div>
             </div>
 
             <div class="pt-3 border-t border-slate-100 flex justify-end">
@@ -475,10 +479,10 @@
         ];
         const MIN_EXPECTED_RECORDS = 1000;
 
-        // Lien de soutien (laisser vide pour masquer le bloc). Format : https://github.com/sponsors/votre-nom
-        const SPONSOR_URL = "";
+        // Lien de soutien (laisser vide pour masquer le bloc)
+const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026.11.12c";
+        const APP_VERSION = "2026.11.13";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
