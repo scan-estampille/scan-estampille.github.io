@@ -413,6 +413,12 @@
             <div id="contact-fields" class="flex flex-col gap-3">
                 <p id="contact-intro" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
 
+                <!-- Motif du signalement : options remplies selon l'endroit d'où il est envoyé -->
+                <fieldset id="contact-motif-block" class="hidden">
+                    <legend class="block text-xs font-semibold text-slate-700 mb-1">Que se passe-t-il ? <span class="font-normal text-slate-500">(facultatif)</span></legend>
+                    <div id="contact-motif-options" class="flex flex-col gap-1"></div>
+                </fieldset>
+
                 <div>
                     <label for="contact-message" class="block text-xs font-semibold text-slate-700 mb-1">Message</label>
                     <textarea id="contact-message" rows="4" maxlength="5000" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
@@ -491,7 +497,7 @@
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements : identique à VERSION dans sw.js.
         // À changer à la main à chaque mise en ligne ; le workflow « Mise à jour liste Italie » réécrit les deux.
-        const APP_VERSION = "2026-11-13d";
+        const APP_VERSION = "2026-11-13e";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -1041,7 +1047,10 @@
                 link.type = 'button';
                 link.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
                 link.textContent = "Aucun ne correspond ? Envoyer la photo à l'auteur";
-                link.addEventListener('click', () => openContact({ kind: 'scan', withScan: true }));
+                link.addEventListener('click', () => {
+                    if (lastScan) lastScan.reason = 'suggestions';
+                    openContact({ kind: 'scan', withScan: true });
+                });
                 box.appendChild(link);
             }
             box.classList.remove('hidden');
@@ -1670,7 +1679,7 @@
             link.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
             link.textContent = "Une estampille mal lue ? Envoyer la photo à l'auteur";
             link.addEventListener('click', () => {
-                if (lastScan) lastScan.reason = 'plusieurs estampilles';
+                if (lastScan) lastScan.reason = 'plusieurs';
                 openContact({ kind: 'scan', withScan: true });
             });
             box.appendChild(link);
@@ -1710,6 +1719,35 @@
             document.getElementById('scan-report-box').classList.add('hidden');
         }
 
+        // Motifs de signalement : code stable (pour les statistiques) → libellé lisible (objet de l'e-mail).
+        // Les premiers sont déduits de l'endroit d'où part le signalement ; les trois derniers sont
+        // choisis par l'utilisateur dans la fenêtre d'envoi et remplacent alors le motif automatique.
+        const MOTIFS = {
+            unread: 'photo illisible',
+            notfound: 'numéro introuvable',
+            uncertain: 'lecture incertaine',
+            image: 'image impossible à ouvrir',
+            error: 'échec de la lecture',
+            plusieurs: 'plusieurs estampilles',
+            suggestions: 'aucune suggestion ne correspond',
+            fiche: 'signalement depuis la fiche',
+            manuel: 'signalement manuel',
+            numero_faux: 'numéro mal lu',
+            etablissement_faux: 'mauvais établissement',
+            essai: 'essai'
+        };
+        // Choix proposés à l'utilisateur selon l'origine du signalement
+        const MOTIF_CHOICES = {
+            numero_faux: "Le numéro lu ne correspond pas à l'emballage",
+            etablissement_faux: "Le numéro est bon, mais l'établissement affiché n'est pas le bon",
+            essai: "Simple essai ou autre remarque"
+        };
+        function motifChoicesFor(origin) {
+            if (origin === 'fiche') return ['numero_faux', 'etablissement_faux', 'essai'];
+            if (['notfound', 'uncertain', 'plusieurs', 'suggestions'].includes(origin)) return ['numero_faux', 'essai'];
+            return ['essai'];
+        }
+
         // Détails techniques joints au signalement (visibles par l'utilisateur avant envoi)
         function buildDiagnostic() {
             const meta = readDbMeta() || {};
@@ -1717,7 +1755,9 @@
             return {
                 appli: APP_VERSION,
                 date: new Date().toISOString(),
-                motif: scan.reason || 'signalement manuel',
+                motif: MOTIFS[scan.reason] || MOTIFS.manuel,
+                motifCode: scan.reason || 'manuel',
+                origine: MOTIFS[scan.reason] || MOTIFS.manuel,
                 codeLu: scan.code || null,
                 rechercheDansLaListe: scan.lookupMode || null,
                 dureeMs: scan.ms ?? null,
@@ -1782,18 +1822,22 @@
         // kind : 'contact' (depuis « À propos ») ou 'scan' (photo non lue, avec photo et détails)
         function openContact({ kind = 'contact', withScan = false } = {}) {
             const scan = withScan && lastScan;
+            const origin = kind === 'scan' ? ((scan && lastScan.reason) || 'manuel') : null;
             contact = {
                 kind,
+                origin,
+                motif: origin,
                 photos: scan && lastScan.image ? [lastScan.image] : [],
                 diagnostic: scan ? buildDiagnostic() : null,
                 id: newRequestId()
             };
 
-            document.getElementById('contact-modal-title').textContent =
-                kind === 'scan' ? "Signaler une photo non lue" : "Contacter l'auteur";
+            document.getElementById('contact-modal-title').textContent = kind !== 'scan' ? "Contacter l'auteur"
+                : (origin === 'fiche' ? "Signaler une erreur" : "Signaler une photo mal lue");
             document.getElementById('contact-intro').textContent = kind === 'scan'
                 ? "La photo et les détails techniques aident l'auteur à améliorer la lecture. Un mot est le bienvenu, par exemple le numéro inscrit sur l'emballage."
                 : "Votre message arrive par e-mail chez l'auteur. Laissez votre adresse si vous souhaitez une réponse.";
+            renderMotifChoices();
             const msg = document.getElementById('contact-message');
             msg.value = '';
             msg.placeholder = kind === 'scan' ? "Facultatif : produit, marque, numéro réel…" : "Votre message";
@@ -1815,6 +1859,39 @@
             refreshIcons();
 
             showModal('contact-modal', { focus: kind === 'scan' ? document.getElementById('btn-close-contact') : msg });
+        }
+
+        // Boutons radio du motif ; un choix remplace le motif automatique dans le diagnostic et l'e-mail
+        function renderMotifChoices() {
+            const block = document.getElementById('contact-motif-block');
+            const wrap = document.getElementById('contact-motif-options');
+            wrap.innerHTML = '';
+            block.classList.toggle('hidden', contact.kind !== 'scan');
+            if (contact.kind !== 'scan') return;
+            for (const code of motifChoicesFor(contact.origin)) {
+                const label = document.createElement('label');
+                label.className = 'flex items-start gap-2 text-xs text-slate-700 cursor-pointer';
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'contact-motif';
+                input.value = code;
+                input.className = 'mt-0.5';
+                input.style.accentColor = '#2563eb';
+                input.addEventListener('change', () => setContactMotif(code));
+                const text = document.createElement('span');
+                text.textContent = MOTIF_CHOICES[code];
+                label.append(input, text);
+                wrap.appendChild(label);
+            }
+        }
+
+        function setContactMotif(code) {
+            contact.motif = code;
+            if (contact.diagnostic) {
+                contact.diagnostic.motif = MOTIFS[code] || MOTIFS.manuel;
+                contact.diagnostic.motifCode = code;
+                document.getElementById('contact-diag-preview').textContent = JSON.stringify(contact.diagnostic, null, 2);
+            }
         }
 
         async function addContactPhotos(files) {
@@ -1866,6 +1943,7 @@
                     body: JSON.stringify({
                         id: contact.id,
                         kind: contact.kind,
+                        motif: contact.kind === 'scan' ? (MOTIFS[contact.motif] || MOTIFS.manuel) : null,
                         message,
                         email,
                         images: contact.photos,
@@ -2003,7 +2081,7 @@
             document.getElementById('scan-report-retry').addEventListener('click', () => cameraInput.click());
             document.getElementById('scan-report-close').addEventListener('click', hideScanReport);
             document.getElementById('res-scan-report').addEventListener('click', () => {
-                if (lastScan) lastScan.reason = 'mauvais établissement';
+                if (lastScan) lastScan.reason = 'fiche';
                 openContact({ kind: 'scan', withScan: true });
             });
 
