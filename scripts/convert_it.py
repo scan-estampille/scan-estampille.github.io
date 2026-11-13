@@ -7,11 +7,8 @@ Usage :
   python scripts/convert_it.py                      # télécharge
   python scripts/convert_it.py --input page.html    # test local, sans réseau
 """
-import argparse, csv, json, os, re, sys, time
+import argparse, csv, json, re, sys, time
 import requests
-ROMAN = {str(i): r for i, r in enumerate(
-    ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
-     "XI", "XII", "XIII", "XIV", "XV", "XVI"]) if i}
 from bs4 import BeautifulSoup
 
 URL = ("https://www.salute.gov.it/consultazioneStabilimenti/"
@@ -24,6 +21,13 @@ HEADERS = {
 }
 MIN_RECORDS = 500          # en dessous : fichier suspect
 MAX_DROP = 0.20            # refuse une baisse de plus de 20 % par rapport au fichier actuel
+
+# Sections : la source écrit 2, 5... ; l'appli attend des chiffres romains (comme la DGAL)
+ROMAN = {
+    "1": "I", "2": "II", "3": "III", "4": "IV", "5": "V", "6": "VI",
+    "7": "VII", "8": "VIII", "9": "IX", "10": "X", "11": "XI", "12": "XII",
+    "13": "XIII", "14": "XIV", "15": "XV", "16": "XVI",
+}
 
 
 def download(retries=3):
@@ -60,15 +64,20 @@ def parse(html):
         tds = tr.find_all("td", recursive=False)
         if len(tds) != 10:
             continue
-        num, name, vat, _tax, town, cat, act, species, _remarks, _tse = [clean(td.get_text()) for td in tds]
-              cat = ROMAN.get(cat, cat)   # 2 -> II ; une valeur inconnue est conservée telle quelle
+        num, name, vat, _tax, town, cat, act, species, _remarks, _tse = [
+            clean(td.get_text()) for td in tds
+        ]
+        cat = ROMAN.get(cat, cat)   # 2 -> II ; une valeur inconnue (0, RC...) est conservée
         num = re.sub(r"^UE\s+", "", num, flags=re.I)        # « UE IT 505 L » -> « IT 505 L »
         if not re.search(r"\d", num):
             continue
 
         m = re.match(r"^(.*),\s*([^,]+?)\s*\(([A-Z]{2})\)\s*$", town)
-        adresse, commune, prov = (m.group(1), m.group(2), m.group(3)) if m else (town, "", "")
-              adresse = clean(adresse)    # retire les espaces finaux (« VIA COLLE DI NAVA 24/L »)
+        if m:
+            adresse, commune, prov = m.group(1), m.group(2), m.group(3)
+        else:
+            adresse, commune, prov = town, "", ""
+        adresse = clean(adresse)
 
         sp = [p.strip() for p in species.split("|")]
         sp = [p for p in sp if p and p != "-"]
