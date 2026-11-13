@@ -491,7 +491,7 @@
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements : identique à VERSION dans sw.js.
         // À changer à la main à chaque mise en ligne ; le workflow « Mise à jour liste Italie » réécrit les deux.
-        const APP_VERSION = "2026-11-13c";
+        const APP_VERSION = "2026-11-13d";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -845,6 +845,66 @@
 
         const MAX_RESULTS = 30;
 
+        // Numéro français découpé en trois segments (département, commune, ordre), tolérant aux défauts
+        // de lecture : « / » ou « | » (souvent un 7 ou un 1 mal lu) devient un caractère inconnu,
+        // « ?.?.076.006 » redevient « ??.076.006 ». Renvoie null si la structure n'est pas reconnaissable.
+        function parseFrSegments(code) {
+            let s = String(code || '').toUpperCase().trim()
+                .replace(/^FR\s*/, '').replace(/\s*CE$/, '')
+                .replace(/[\/\\|]/g, '§')          // § : inconnu, probablement un trait (1 ou 7)
+                .replace(/[\s\-]+/g, '.');
+            const seg = s.split('.').filter(Boolean);
+            if (seg.length < 3) return null;
+            const parts = [seg.slice(0, -2).join(''), seg[seg.length - 2], seg[seg.length - 1]];
+            if (parts.some(p => !/^[0-9AB?§]{1,3}$/.test(p))) return null;
+            return parts;
+        }
+
+        // Ressemblance entre un segment lu et un segment de la liste :
+        // 2 identique, 1.5 compatible avec les « ? », 1 un seul caractère d'écart, 0 sinon
+        function segmentScore(read, real) {
+            if (read === real) return 2;
+            if (read.length !== real.length) return 0;
+            let unknown = 0, diff = 0, bonus = 0;
+            for (let i = 0; i < read.length; i++) {
+                const r = read[i], c = real[i];
+                if (r === '?' || r === '§') { unknown++; if (r === '§' && (c === '1' || c === '7')) bonus += 0.25; }
+                else if (r !== c) diff++;
+            }
+            if (diff === 0) return 1.5 + bonus;
+            return diff === 1 && unknown === 0 ? 1 : 0;
+        }
+
+        // Numéro français introuvable tel quel : établissements dont la commune ET le numéro d'ordre
+        // correspondent (ou presque), quel que soit le département. Cas typique : un reflet ou l'usure
+        // efface le département et l'IA le remplace par un autre (« 2A.076.006 » pour « 11.076.006 »).
+        // Classement : segments identiques d'abord, puis ressemblance. Ce ne sont que des suggestions.
+        function lookupBySegments(code, max = 8) {
+            const read = parseFrSegments(code);
+            // trop peu de caractères sûrs dans la commune et l'ordre : les suggestions ne voudraient rien dire
+            if (!read || (read[1] + read[2]).replace(/[?§]/g, '').length < 4) return { mode: 'none', results: [], total: 0 };
+            const scored = [];
+            for (const [key, list] of etablissementsMap) {
+                if (!key.startsWith('FR:')) continue;
+                const real = String(list[0].numAgrement || '').toUpperCase().split('.');
+                if (real.length !== 3) continue;
+                const sc = read.map((r, i) => segmentScore(r, real[i]));
+                // la commune et l'ordre doivent ressembler, et l'un des deux au moins être sûr
+                if (sc[1] < 1 || sc[2] < 1 || Math.max(sc[1], sc[2]) < 1.5) continue;
+                const exact = sc.filter(x => x === 2).length;
+                scored.push({ list, exact, sum: sc[0] + sc[1] + sc[2] });
+            }
+            scored.sort((a, b) => (b.exact - a.exact) || (b.sum - a.sum));
+            const results = [];
+            for (const s of scored) {
+                results.push(...mergeSameSite(s.list));
+                if (results.length >= max) break;
+            }
+            return results.length
+                ? { mode: 'near', results: results.slice(0, max), total: scored.length }
+                : { mode: 'none', results: [], total: 0 };
+        }
+
         // Retourne { mode, results, total } avec mode = exact | multiple | near | none | notloaded
         // Règle : un numéro d'agrément n'est JAMAIS deviné. Soit il existe exactement, soit on propose
         // des suggestions que l'utilisateur doit choisir lui-même.
@@ -892,6 +952,14 @@
                     for (let i = 0; i < c.length && diff < 2; i++) if (c[i] !== code[i]) diff++;
                     if (diff === 1) near.push(...mergeSameSite(list));
                     if (near.length >= 8) break;
+                }
+                // France : on complète avec les numéros dont seul un segment diffère (souvent le département)
+                if (pays !== 'IT' && near.length < 8) {
+                    const seen = new Set(near.map(e => e.numAgrement));
+                    for (const e of lookupBySegments(q).results) {
+                        if (!seen.has(e.numAgrement)) { near.push(e); seen.add(e.numAgrement); }
+                        if (near.length >= 8) break;
+                    }
                 }
                 return near.length
                     ? { mode: 'near', results: near.slice(0, 8), total: near.length }
@@ -1321,6 +1389,13 @@
         // Ce ne sont que des suggestions : l'utilisateur choisit lui-même.
         function lookupPattern(numero, pays = 'FR') {
             if (!isDbLoaded) return { mode: 'notloaded', results: [], total: 0 };
+            // France : comparaison segment par segment, qui résiste aux structures abîmées (« ?.?.0/6.006 »)
+            // et classe d'abord les numéros dont le département lu est compatible
+            if (pays !== 'IT' && parseFrSegments(numero)) return lookupBySegments(numero);
+            return lookupPatternExact(numero, pays);
+        }
+
+        function lookupPatternExact(numero, pays) {
             const pat = numero.toUpperCase().replace(/^(FR|IT)\s*/, '').replace(/\s*CE$/, '').replace(/[^0-9A-Z?]/g, '');
             const unknown = (pat.match(/\?/g) || []).length;
             if (!unknown || unknown > 2 || pat.length < (pays === 'IT' ? 4 : 6)) return { mode: 'none', results: [], total: 0 };
@@ -1480,6 +1555,11 @@
                 showScanReport('uncertain');
             } else {
                 showLookupResult(st.res, st.code, 'scan');
+                // L'IA n'était pas sûre de tous les caractères : le numéro trouvé peut être celui d'un autre
+                // établissement (un chiffre mal lu qui tombe sur un numéro existant). On le dit.
+                if (st.status === 'exact' && st.reading.lisibilite === 'partielle') {
+                    showNotification(`Lecture incertaine : vérifiez que ${shortCode(st.code)} est bien le numéro de l'emballage.`, 'info', false);
+                }
             }
         }
 
