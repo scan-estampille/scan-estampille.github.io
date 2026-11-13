@@ -1,35 +1,55 @@
 name: Mise à jour liste Italie
+
 on:
   schedule:
-    - cron: '0 5 1 * *'     # le 1er de chaque mois
-  workflow_dispatch:
+    - cron: '0 5 1 * *'     # le 1er de chaque mois à 5 h UTC
+  workflow_dispatch:         # bouton « Run workflow » pour lancer à la main
 
 permissions:
   contents: write
+
+# Groupe commun aux deux workflows de listes : ils ne poussent jamais en même temps
+concurrency:
+  group: maj-listes
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v5
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - run: pip install requests beautifulsoup4
 
       - name: Télécharger et convertir
         run: python scripts/convert_it.py
 
-      - name: Commit si la liste a changé
+      - name: Enregistrer la liste si elle a changé
         run: |
-          if [ -n "$(git status --porcelain ETAB_AGR_IT.txt)" ]; then
-            sed -i "s/^\(const \)\?VERSION = .*/\1VERSION = '$(date +%Y-%m-%d)-it';/" sw.js
-            git config user.name "github-actions"
-            git config user.email "actions@users.noreply.github.com"
-            git add ETAB_AGR_IT.txt ETAB_AGR_IT.meta.json sw.js
-            git commit -m "MAJ liste Italie ($(date +%Y-%m-%d))"
-            git push
-          else
+          set -euo pipefail
+          if [ -z "$(git status --porcelain ETAB_AGR_IT.txt)" ]; then
             echo "Liste inchangée."
+            exit 0
           fi
+
+          # Nouvelle version de l'appli : le service worker et l'appli portent la même valeur,
+          # pour que les signalements indiquent la version réellement installée
+          V="$(date -u +%Y-%m-%d)-it"
+          sed -i "s/^\(const \)\?VERSION = .*/const VERSION = '$V';/" sw.js
+          sed -i "s/^\(\s*const APP_VERSION = \)\".*\";/\1\"$V\";/" index.html
+          grep -q "VERSION = '$V'" sw.js || { echo "::error::VERSION introuvable dans sw.js"; exit 1; }
+          grep -q "APP_VERSION = \"$V\"" index.html || { echo "::error::APP_VERSION introuvable dans index.html"; exit 1; }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add ETAB_AGR_IT.txt ETAB_AGR_IT.meta.json sw.js index.html
+          git commit -m "MAJ liste Italie ($(date -u +%Y-%m-%d))"
+          # Un commit a pu arriver entre-temps (modification manuelle) : on se met à jour avant d'envoyer
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push
