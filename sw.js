@@ -1,7 +1,7 @@
 // Service worker de l'application Estampille Sanitaire CE.
-// À CHAQUE mise en ligne, changer VERSION (et APP_VERSION dans index.html).
-// La ligne ci-dessous est aussi réécrite automatiquement par le workflow GitHub « Mise à jour liste Italie ».
-const VERSION = '2026-11-13b';
+// À CHAQUE mise en ligne, changer VERSION (et APP_VERSION dans index.html, avec la même valeur).
+// Ces deux lignes sont aussi réécrites automatiquement par le workflow GitHub « Mise à jour liste Italie ».
+const VERSION = '2026-11-13c';
 
 const CACHE = `estampille-${VERSION}`;
 
@@ -12,7 +12,7 @@ const PRECACHE = [
   './index.html',
   './manifest.webmanifest',
   './assets/tailwind.css',
-  './assets/lucide-1.59.0.min.js',
+  './assets/lucide-subset.min.js',
   './ETAB_AGR_853.txt',
   './ETAB_AGR_IT.txt',
   './ETAB_AGR_IT.meta.json',

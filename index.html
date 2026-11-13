@@ -54,8 +54,8 @@
 
     <!-- Tailwind CSS compilé (v3.4.17, voir src/tailwind.css et package.json) -->
     <link rel="stylesheet" href="assets/tailwind.css">
-    <!-- Lucide Icons, version épinglée et servie localement (fonctionne hors ligne) -->
-    <script src="assets/lucide-1.59.0.min.js"></script>
+    <!-- Lucide Icons v1.59.0 : seulement les icônes utilisées (scripts/lucide-subset.js), servies localement -->
+    <script src="assets/lucide-subset.min.js"></script>
     <style>
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -489,8 +489,9 @@
 
         // Lien de soutien (laisser vide pour masquer le bloc)
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
-        // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
-        const APP_VERSION = "2026-11-13b";
+        // Version affichée dans les signalements : identique à VERSION dans sw.js.
+        // À changer à la main à chaque mise en ligne ; le workflow « Mise à jour liste Italie » réécrit les deux.
+        const APP_VERSION = "2026-11-13c";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
