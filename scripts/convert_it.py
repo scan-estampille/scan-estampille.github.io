@@ -9,6 +9,9 @@ Usage :
 """
 import argparse, csv, json, os, re, sys, time
 import requests
+ROMAN = {str(i): r for i, r in enumerate(
+    ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+     "XI", "XII", "XIII", "XIV", "XV", "XVI"]) if i}
 from bs4 import BeautifulSoup
 
 URL = ("https://www.salute.gov.it/consultazioneStabilimenti/"
@@ -38,7 +41,7 @@ def download(retries=3):
         except requests.RequestException as e:
             last = str(e)
         print(f"Essai {i + 1} échoué : {last}", file=sys.stderr)
-        time.sleep(30)
+        time.sleep(5)
     sys.exit(f"Téléchargement impossible : {last}")
 
 
@@ -58,12 +61,14 @@ def parse(html):
         if len(tds) != 10:
             continue
         num, name, vat, _tax, town, cat, act, species, _remarks, _tse = [clean(td.get_text()) for td in tds]
+              cat = ROMAN.get(cat, cat)   # 2 -> II ; une valeur inconnue est conservée telle quelle
         num = re.sub(r"^UE\s+", "", num, flags=re.I)        # « UE IT 505 L » -> « IT 505 L »
         if not re.search(r"\d", num):
             continue
 
         m = re.match(r"^(.*),\s*([^,]+?)\s*\(([A-Z]{2})\)\s*$", town)
         adresse, commune, prov = (m.group(1), m.group(2), m.group(3)) if m else (town, "", "")
+              adresse = clean(adresse)    # retire les espaces finaux (« VIA COLLE DI NAVA 24/L »)
 
         sp = [p.strip() for p in species.split("|")]
         sp = [p for p in sp if p and p != "-"]
