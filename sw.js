@@ -5,7 +5,7 @@
 //      les caches v3 éventuellement corrompus.
 // v5 : nouveau CSS (encart de signalement, modale de contact).
 // v6 : lecture de plusieurs estampilles (liste avec vignettes).
-const VERSION = 'v9.1';
+const VERSION = '2026-11-13-it';
 const CACHE = `estampille-${VERSION}`;
 
 const APP_SHELL = [
