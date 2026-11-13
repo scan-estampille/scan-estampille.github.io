@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estampille Sanitaire CE - Établissement agréé & Traçabilité</title>
+    <meta name="description" content="Lisez l'estampille sanitaire ovale (FR 00.000.000 CE, IT 0000 CE) d'un emballage alimentaire et trouvez l'établissement agréé qui l'a préparé, d'après les listes officielles de la DGAL (France) et du ministère de la Santé (Italie).">
+    <meta name="robots" content="index, follow">
+    <meta name="format-detection" content="telephone=no">
+    <!-- URL publique du site -->
+    <link rel="canonical" href="https://scan-estampille.github.io/">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="application-name" content="Estampille CE">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Estampille CE">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <!-- Open Graph / partage -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content="Estampille Sanitaire CE">
+    <meta property="og:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta property="og:description" content="Photographiez ou saisissez le numéro de l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé : nom, adresse, activités. Données officielles (France et Italie).">
+    <meta property="og:url" content="https://scan-estampille.github.io/">
+    <meta property="og:image" content="https://scan-estampille.github.io/icons/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Estampille ovale FRANCE 00.000.000 CE à côté du nom de l'application">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta name="twitter:description" content="Lisez l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé, d'après les listes officielles (France et Italie).">
+    <meta name="twitter:image" content="https://scan-estampille.github.io/icons/og-image.png">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Estampille Sanitaire CE",
+        "url": "https://scan-estampille.github.io/",
+        "description": "Identifie l'établissement agréé CE à partir du numéro de l'estampille sanitaire ovale, d'après les listes officielles de la DGAL (France) et du ministère de la Santé italien.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Tous (navigateur web)",
+        "inLanguage": "fr",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    }
+    </script>
+
+    <!-- Tailwind CSS compilé (v3.4.17, voir src/tailwind.css et package.json) -->
+    <link rel="stylesheet" href="assets/tailwind.css">
+    <!-- Lucide Icons, version épinglée et servie localement (fonctionne hors ligne) -->
+    <script src="assets/lucide-1.59.0.min.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col font-sans antialiased m-0">
+
+    <!-- En-tête épuré sur une seule ligne -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2 truncate">
+                <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+                    <i data-lucide="scan-line" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="flex items-baseline gap-2 truncate">
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Estampille Sanitaire CE</h1>
+                    <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                    <p class="text-xs text-slate-500 truncate hidden sm:inline">Établissements agréés CE (France et Italie)</p>
+                </div>
+            </div>
+            <div class="text-[11px] text-slate-400 shrink-0 font-medium">
+                Règlement (CE) 853/2004
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteneur Principal -->
+    <main class="max-w-4xl mx-auto px-4 py-2.5 sm:py-3 w-full flex flex-col gap-2.5">
+
+        <!-- Barre de recherche manuelle & Actions Scanner -->
+        <div class="bg-white p-3 sm:p-3.5 rounded-2xl shadow-sm border border-slate-200/85">
+            <!-- Mini tuto : quoi photographier -->
+            <div class="flex items-center gap-3 mb-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100">
+                <svg class="w-[104px] h-[72px] shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille ovale FR 00.000.000 CE encadrée pour la photo">
+                    <!-- étiquette de l'emballage -->
+                    <rect x="1" y="1" width="102" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <rect x="8" y="10" width="20" height="4" rx="2" fill="#cbd5e1"/>
+                    <rect x="8" y="19" width="16" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="26" width="18" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="49" width="17" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="8" y="56" width="12" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <!-- estampille ovale -->
+                    <ellipse cx="66" cy="36" rx="29" ry="20" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+                    <text x="66" y="28.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" font-weight="700" fill="#0f172a">FR</text>
+                    <text x="66" y="39.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="800" fill="#0f172a">00.000.000</text>
+                    <text x="66" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="7" font-weight="700" fill="#0f172a">CE</text>
+                    <!-- cadre de visée -->
+                    <path d="M32 15v-3a4 4 0 0 1 4-4h4 M92 8h4a4 4 0 0 1 4 4v3 M100 57v3a4 4 0 0 1-4 4h-4 M40 64h-4a4 4 0 0 1-4-4v-3" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="min-w-0">
+                    <h2 class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">Photographiez l'estampille sanitaire</h2>
+                    <p class="text-[11px] sm:text-xs text-slate-600 leading-snug mt-0.5">C'est le petit ovale «&nbsp;FR&nbsp;00.000.000&nbsp;CE&nbsp;» (ou «&nbsp;IT&nbsp;…&nbsp;CE&nbsp;») imprimé sur les emballages de viande, poisson, fromage, œufs… souvent près de la date limite. Cadrez-le de près, net et bien éclairé.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <!-- Déclencheur Caméra Directe -->
+                <label for="camera-input" class="relative cursor-pointer group flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm transition shadow-sm shadow-blue-600/25 active:scale-[0.98] focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+                    <i data-lucide="camera" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Prendre photo</span>
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="sr-only">
+                </label>
+                <!-- Déclencheur Galerie / Fichier -->
+                <label for="file-input" class="relative cursor-pointer group flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs sm:text-sm transition active:scale-[0.98] focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+                    <i data-lucide="image" class="w-4 h-4 shrink-0"></i>
+                    <span class="truncate">Importer image</span>
+                    <input type="file" id="file-input" accept="image/*" class="sr-only">
+                </label>
+            </div>
+
+            <!-- Champ de saisie manuelle -->
+            <form id="search-form" role="search" class="relative flex items-center gap-2">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="manual-code-input" placeholder="Ex : 64.348.100, IT 2874 ou Candia" aria-label="Numéro d'agrément, nom de l'entreprise ou commune" autocomplete="off" enterkeyhint="search" class="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <button type="button" id="clear-search-btn" aria-label="Effacer la recherche" class="hidden absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <button type="submit" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-medium transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                    <span>Rechercher</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Zone Visualisation Scan en cours -->
+        <div id="scan-progress-box" role="status" aria-live="polite" class="hidden bg-white p-3 rounded-2xl border border-blue-200 shadow-sm flex items-center gap-3">
+            <div class="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                <img id="scanned-image-preview" src="" alt="Aperçu estampille" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-blue-600/30 backdrop-blur-sm flex items-center justify-center">
+                    <i data-lucide="loader-2" class="w-5 h-5 text-white animate-spin"></i>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xs sm:text-sm font-semibold text-slate-800 truncate" id="scan-status-title">Lecture de l'estampille...</h3>
+                <p class="text-[11px] text-slate-500 mt-0.5 truncate" id="scan-status-detail">Analyse visuelle de l'image</p>
+                <div class="w-full bg-slate-100 rounded-full h-1 mt-2 overflow-hidden">
+                    <div id="scan-progress-bar" class="bg-blue-600 h-1 rounded-full w-2/3 animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone d'alerte / Notification -->
+        <div id="notification-box" role="status" aria-live="polite" aria-atomic="true" class="hidden p-3 rounded-xl text-xs sm:text-sm flex items-start gap-2.5 border transition">
+            <i id="notification-icon" data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+            <div id="notification-message" class="flex-1 leading-snug"></div>
+            <button type="button" onclick="hideNotification()" aria-label="Fermer le message" class="text-slate-400 hover:text-slate-600 p-0.5 shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+
+        <!-- Encart après une photo non lue : proposer l'envoi de la photo à l'auteur -->
+        <div id="scan-report-box" class="hidden bg-white p-3 rounded-2xl border border-amber-200 shadow-sm" role="status" aria-live="polite">
+            <div class="flex items-start gap-3">
+                <img id="scan-report-thumb" src="" alt="" class="hidden w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0">
+                <div class="flex-1 min-w-0">
+                    <p id="scan-report-title" class="text-xs sm:text-sm font-semibold text-slate-800"></p>
+                    <p id="scan-report-hint" class="text-[11px] sm:text-xs text-slate-600 mt-0.5"></p>
+                </div>
+                <button type="button" id="scan-report-close" aria-label="Fermer" class="text-slate-400 hover:text-slate-600 p-0.5 shrink-0"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-2.5">
+                <button type="button" id="scan-report-send" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition active:scale-95">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i><span id="scan-report-send-label">Envoyer la photo à l'auteur</span>
+                </button>
+                <button type="button" id="scan-report-retry" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition active:scale-95">
+                    <i data-lucide="camera" class="w-3.5 h-3.5"></i><span>Reprendre une photo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Liste de suggestions / résultats multiples -->
+        <div id="candidates-box" class="hidden space-y-1.5"></div>
+
+        <!-- Fiche Résultat Établissement -->
+        <div id="result-card" class="hidden flex flex-col gap-2.5">
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+                <!-- En-tête de la fiche résultat -->
+                <div class="p-3 sm:p-3.5 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <i data-lucide="check-circle-2" class="w-3 h-3"></i> Établissement Agréé CE
+                            </span>
+                            <span id="res-dept-badge" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-white/10 text-slate-200">Dép. --</span>
+                        </div>
+                        <h2 id="res-raison-sociale" tabindex="-1" class="focus:outline-none text-base sm:text-lg font-bold tracking-tight text-white leading-tight">--</h2>
+                        <p id="res-commune-header" class="text-xs text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i> <span id="res-header-city">--</span>
+                        </p>
+                    </div>
+
+                    <!-- Badge Ovale Officiel CE & SIRET (avec Pappers intégré pour la France) -->
+                    <div class="shrink-0 flex items-center gap-2 sm:justify-end">
+                        <div class="border-2 border-white/80 rounded-[50%] px-3 py-1 text-center bg-white/5 backdrop-blur-sm shadow-inner">
+                            <div id="res-oval-pays" class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">FRANCE</div>
+                            <div id="res-agrement-ovale" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
+                            <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
+                        </div>
+                        <a id="btn-pappers" href="#" target="_blank" rel="noopener noreferrer" title="Fiche Entreprise (Pappers)" aria-label="Voir la fiche entreprise sur Pappers" class="group bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-white/40 px-2 py-1.5 rounded-xl text-left flex items-center gap-2 transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+                            <div>
+                                <span id="res-siret-label" class="text-[9px] uppercase font-semibold text-slate-300 tracking-wider block">SIRET</span>
+                                <span id="res-siret-header" class="font-mono text-xs font-bold text-slate-100">--</span>
+                            </div>
+                            <span id="res-pappers-icon" class="p-1.5 rounded-lg bg-white/10 group-hover:bg-white/20 text-white transition shrink-0">
+                                <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Détails Administratifs & Activités -->
+                <div class="p-3 sm:p-3.5 space-y-2.5">
+                    <!-- Rappel après un scan : le numéro a été lu par une IA -->
+                    <p id="res-scan-note" class="hidden text-[11px] sm:text-xs text-slate-600 flex flex-wrap items-center gap-x-1.5">
+                        <i data-lucide="scan-line" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+                        <span>Numéro lu sur la photo : vérifiez qu'il correspond à l'emballage.</span>
+                        <button type="button" id="res-scan-report" class="text-blue-600 hover:underline font-medium">Ce n'est pas le bon ?</button>
+                    </p>
+                    <!-- Adresse + Bouton Itinéraire GPS & Bouton Satellite -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
+                        <div class="min-w-0 flex-1">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-0.5">Adresse de l'établissement</span>
+                            <p id="res-adresse" class="text-xs sm:text-sm font-semibold text-slate-800 truncate">--</p>
+                            <p id="res-cp-ville" class="text-[11px] sm:text-xs text-slate-600 font-medium">--</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <!-- Bouton Itinéraire GPS épuré (Picto seul) -->
+                            <a id="btn-google-maps" href="#" target="_blank" rel="noopener noreferrer" title="Itinéraire GPS" aria-label="Itinéraire vers l'établissement (Google Maps, nouvel onglet)" class="p-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 transition active:scale-95 flex items-center justify-center">
+                                <i data-lucide="navigation" class="w-4 h-4 text-blue-600"></i>
+                            </a>
+                            <!-- Bouton Déclencheur Modal Satellite -->
+                            <button type="button" id="btn-open-satellite-modal" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-sm transition active:scale-95">
+                                <i data-lucide="satellite" class="w-3.5 h-3.5 text-sky-200"></i>
+                                <span>Vue satellite</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Activités & Filières agréées -->
+                    <div>
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Activités & Filières agréées</span>
+                        <div id="res-activites-container" class="flex flex-col gap-2">
+                            <!-- Badges d'activités insérés dynamiquement -->
+                        </div>
+                    </div>
+
+                    <!-- Espèces animales travaillées (colonne « Espèce » des fichiers officiels, souvent vide) -->
+                    <div id="res-especes-block" class="hidden">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Espèces travaillées</span>
+                        <div id="res-especes-container" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Dynamique -->
+    <footer class="mt-2 py-2 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-2">
+            <span>Estampille Sanitaire CE</span>
+            <span>•</span>
+            <button type="button" id="btn-open-about-modal" class="text-blue-600 hover:underline font-medium">À propos</button>
+        </div>
+    </footer>
+
+    <!-- Modale Plein Écran : Vue Satellite Google Maps Embed -->
+    <div id="satellite-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-etab" aria-describedby="modal-subtitle-addr" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col hidden animate-fade-in motion-reduce:animate-none">
+        <!-- Barre supérieure de la modale -->
+        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0 pr-3">
+                <div class="p-1.5 rounded-lg bg-blue-600 text-white shrink-0">
+                    <i data-lucide="satellite" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0">
+                    <h3 id="modal-title-etab" class="text-sm font-bold truncate">Vue satellite de l'établissement</h3>
+                    <p id="modal-subtitle-addr" class="text-xs text-slate-400 truncate">Localisation Google Maps...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a id="modal-btn-ext-maps" href="#" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Ouvrir dans Maps</span>
+                </a>
+                <button type="button" id="btn-close-satellite-modal" aria-label="Fermer la vue satellite" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Conteneur Iframe Google Maps Satellite plein écran -->
+        <div class="flex-1 relative w-full h-full bg-slate-950">
+            <iframe id="modal-map-iframe" title="Vue satellite Google Maps de l'établissement" class="w-full h-full border-0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Modale "À propos" -->
+    <div id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-fade-in motion-reduce:animate-none">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-slate-200 flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                    </div>
+                    <h3 id="about-modal-title" class="font-bold text-slate-900 text-base">À propos de l'application</h3>
+                </div>
+                <button type="button" id="btn-close-about-modal" aria-label="Fermer" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Sources officielles</h4>
+                    <p><strong>France</strong> : fichier officiel des établissements agréés au titre du paquet hygiène (Règlement CE n°853/2004) publié par la <strong>Direction Générale de l'Alimentation (DGAL)</strong> du Ministère de l'Agriculture et de la Souveraineté alimentaire.</p>
+                    <p id="about-dgal-count" class="mt-1 font-medium text-blue-600">Établissements agréés référencés : chargement en cours...</p>
+                    <p class="mt-2"><strong>Italie</strong> : liste officielle des établissements reconnus publiée par le <strong>Ministero della Salute</strong> (Direzione generale per l'igiene e la sicurezza degli alimenti e la nutrizione). Elle est recopiée automatiquement une fois par mois sur ce site.</p>
+                    <p id="about-it-count" class="mt-1 font-medium text-blue-600">Italie : chargement en cours...</p>
+                </div>
+
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                    <h4 class="font-semibold text-amber-900 mb-1">Comment lire le résultat</h4>
+                    <p class="text-amber-900/90">L'estampille ovale identifie l'<strong>établissement agréé</strong> qui a préparé, transformé, conditionné ou stocké le produit en dernier. Ce n'est pas forcément le lieu de production des matières premières, ni le propriétaire de la marque : un même établissement peut fabriquer pour plusieurs marques. Figurer dans la liste ne constitue pas une garantie de conformité. Les données sont celles des fichiers officiels et peuvent être incomplètes ou en retard sur la réalité.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Fonctionnement</h4>
+                    <p>Une IA de lecture d'image repère chaque estampille ovale de la photo et lit son numéro ; un ovale difficile est relu de près. L'application recherche ensuite chaque numéro dans la liste officielle du pays concerné (France ou Italie). <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & données</h4>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Groq, ou Cloudflare Workers AI en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
+                        <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
+                        <li><strong>Listes officielles</strong> : la liste française est téléchargée via le relais, la liste italienne est un fichier hébergé avec l'application. Toutes deux sont conservées dans le navigateur pour accélérer l'application.</li>
+                        <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
+                        <li><strong>Statistiques de fréquentation</strong> : mesure d'audience anonyme par Cloudflare Web Analytics, sans cookie ni identifiant enregistré sur votre appareil (pages vues, pays, type d'appareil). Ces statistiques servent uniquement à suivre l'utilisation de l'application.</li>
+                        <li><strong>Messages à l'auteur</strong> : votre message, votre adresse e-mail si vous la donnez, les photos jointes et les détails techniques passent par le relais (Cloudflare) et le service d'envoi Resend, puis arrivent par e-mail chez l'auteur. Ils servent uniquement à vous répondre et à améliorer l'application.</li>
+                        <li><strong>Services tiers</strong> : la vue satellite (Google Maps), le lien Pappers et le lien de don (Liberapay) ouvrent des services externes qui ont leur propre politique. Aucune donnée n'est transmise à Liberapay depuis l'application : c'est un simple lien.</li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <h4 class="font-semibold text-slate-800 mb-1">Une question, une erreur ?</h4>
+                    <p>Écrivez à l'auteur depuis l'application, sans passer par votre messagerie. Vous pouvez joindre des photos.</p>
+                    <button type="button" id="btn-open-contact" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium transition active:scale-95">
+                        <i data-lucide="mail" class="w-4 h-4"></i><span>Contacter l'auteur</span>
+                    </button>
+                </div>
+
+                <div id="sponsor-block" class="hidden p-3 bg-blue-50/60 rounded-xl border border-blue-100">
+                    <h4 class="font-semibold text-blue-900 mb-1 flex items-center gap-1.5">
+                        <i data-lucide="heart" class="w-4 h-4 text-rose-500 fill-rose-500"></i> Soutenir le projet
+                    </h4>
+                    <p class="text-slate-700">Ce service est gratuit et sans publicité. S'il vous est utile, vous pouvez contribuer à ses frais de fonctionnement par un don libre sur Liberapay, une plateforme à but non lucratif. Vous choisissez le montant et le rythme (hebdomadaire, mensuel ou annuel), et vous pouvez arrêter à tout moment.</p>
+                    <a id="sponsor-link" href="#" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs sm:text-sm font-semibold transition active:scale-95">
+                        <i data-lucide="heart-handshake" class="w-4 h-4"></i><span>Faire un don sur Liberapay</span>
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end">
+                <button type="button" id="btn-close-about-modal-footer" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium hover:bg-slate-800 transition">
+                    Compris
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale « Contacter l'auteur » -->
+    <div id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-fade-in motion-reduce:animate-none">
+        <form id="contact-form" novalidate class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-slate-200 flex flex-col gap-3 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                    </div>
+                    <h3 id="contact-modal-title" class="font-bold text-slate-900 text-base">Contacter l'auteur</h3>
+                </div>
+                <button type="button" id="btn-close-contact" aria-label="Fermer" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="contact-fields" class="flex flex-col gap-3">
+                <p id="contact-intro" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
+
+                <div>
+                    <label for="contact-message" class="block text-xs font-semibold text-slate-700 mb-1">Message</label>
+                    <textarea id="contact-message" rows="4" maxlength="5000" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                </div>
+
+                <div>
+                    <label for="contact-email" class="block text-xs font-semibold text-slate-700 mb-1">Votre e-mail <span class="font-normal text-slate-500">(facultatif, pour recevoir une réponse)</span></label>
+                    <input type="email" id="contact-email" autocomplete="email" maxlength="254" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <span class="block text-xs font-semibold text-slate-700 mb-1">Photos <span class="font-normal text-slate-500">(3 au maximum)</span></span>
+                    <div id="contact-attachments" class="flex flex-wrap gap-2"></div>
+                    <label id="contact-add-photo" for="contact-file-input" class="relative mt-2 cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+                        <i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span>Joindre une photo</span>
+                        <input type="file" id="contact-file-input" accept="image/*" multiple class="sr-only">
+                    </label>
+                </div>
+
+                <div id="contact-diag-block" class="hidden">
+                    <label class="flex items-center gap-2 text-xs text-slate-700">
+                        <input type="checkbox" id="contact-diag-check" checked class="rounded border-slate-300">
+                        Joindre les détails techniques de l'erreur
+                    </label>
+                    <details class="mt-1">
+                        <summary class="text-[11px] text-blue-600 cursor-pointer">Voir ce qui sera envoyé</summary>
+                        <pre id="contact-diag-preview" class="mt-1 p-2 text-[10px] leading-snug bg-slate-50 border border-slate-200 rounded-lg overflow-auto max-h-40 whitespace-pre-wrap break-all"></pre>
+                    </details>
+                </div>
+
+                <!-- Champ piège pour les robots : invisible et ignoré par les humains -->
+                <div class="hidden" aria-hidden="true">
+                    <label>Site web <input type="text" id="contact-website" tabindex="-1" autocomplete="off"></label>
+                </div>
+            </div>
+
+            <p id="contact-status" role="status" aria-live="polite" class="hidden text-xs sm:text-sm rounded-xl p-2.5"></p>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" id="btn-cancel-contact" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium hover:bg-slate-200 transition">Annuler</button>
+                <button type="submit" id="btn-send-contact" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium hover:bg-slate-800 transition disabled:opacity-60 disabled:cursor-wait">Envoyer</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Script logique de l'application -->
+    <script>
+        // PWA : service worker (HTTPS ou localhost uniquement)
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker non enregistré :', err));
+            });
+        }
+
+        // Proxy OCR (Cloudflare Worker) : la clé API reste côté serveur
+        const OCR_PROXY_URL = "https://estampille-ocr.outils-estampille.workers.dev";
+
+        // Liste officielle des établissements agréés CE (DGAL, Ministère de l'Agriculture)
+        const OFFICIAL_URL_DIRECT = "https://fichiers-publics.agriculture.gouv.fr/dgal/ListesOfficielles/ETAB_AGR_853.txt";
+
+        // Sources essayées dans l'ordre. Une source est acceptée seulement si elle fournit assez de lignes valides.
+        const DGAL_SOURCES = [
+            { name: "DGAL (relais en direct)", url: `${OCR_PROXY_URL}/dgal`, live: true },
+            { name: "DGAL (accès direct)", url: OFFICIAL_URL_DIRECT, live: true },
+            { name: "Copie locale du dépôt", url: "./ETAB_AGR_853.txt", live: false }
+        ];
+        const MIN_EXPECTED_RECORDS = 1000;
+
+        // Liste italienne (Ministero della Salute) : copie hébergée avec l'application,
+        // mise à jour chaque mois par GitHub Actions (scripts/convert_it.py)
+        const IT_LIST_URL = "./ETAB_AGR_IT.txt";
+        const IT_META_URL = "./ETAB_AGR_IT.meta.json";
+        const IT_MIN_RECORDS = 1000;
+
+        // Lien de soutien (laisser vide pour masquer le bloc)
+        const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
+        // Version affichée dans les signalements (à changer à chaque mise en ligne, comme VERSION dans sw.js)
+        const APP_VERSION = "2026-11-13b";
+        // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
+        const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
+        const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
+        const DETECT_MAX_SIDE = 1280; // côté max de la photo envoyée (plus grand = plus lent)
+        const CONTACT_MAX_PHOTOS = 3;
+
+        const CACHE_MAX_AGE_MS = 12 * 3600 * 1000; // pas de nouveau téléchargement si le cache a moins de 12 h
+
+        // IndexedDB Cache (liste française uniquement)
+        const DB_NAME = "EstampilleDB";
+        const DB_STORE = "records";
+        const DB_VERSION = 2;
+
+        // Variables d'état
+        let etablissementsMap = new Map();   // clé « PAYS:code » -> établissements
+        let allRecordsList = [];             // France + Italie
+        let frRecords = [];
+        let itRecords = [];
+        let isDbLoaded = false;
+        let currentEtab = null;
+        let dbLoadState = 'loading'; // France : loading | ready | failed
+        let itLoadState = 'loading'; // Italie : loading | ready | failed
+
+        // Défilement doux, sauf si l'utilisateur a demandé à réduire les animations
+        const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const SCROLL_BEHAVIOR = REDUCED_MOTION ? 'auto' : 'smooth';
+
+        function refreshIcons() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        // Notification sans alert()
+        function showNotification(message, type = 'info', scroll = true) {
+            const box = document.getElementById('notification-box');
+            const msgEl = document.getElementById('notification-message');
+            const iconEl = document.getElementById('notification-icon');
+
+            box.className = "p-2.5 rounded-xl text-xs sm:text-sm flex items-start gap-2.5 border transition " + 
+                (type === 'error' ? 'bg-red-50 text-red-800 border-red-200' : 
+                 type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 
+                 'bg-blue-50 text-blue-800 border-blue-200');
+
+            iconEl.setAttribute('data-lucide', type === 'error' ? 'alert-triangle' : (type === 'success' ? 'check-circle-2' : 'info'));
+            msgEl.textContent = message;
+            box.classList.remove('hidden');
+            refreshIcons();
+
+            if (scroll) box.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'start' });
+        }
+
+        function hideNotification() {
+            document.getElementById('notification-box').classList.add('hidden');
+        }
+
+        // Normalisation stricte de l'estampille pour matcher dans la base
+        // (retire le préfixe pays FR/IT, la mention CE, et tout ce qui n'est ni chiffre ni lettre)
+        function cleanAgrementCode(code) {
+            if (!code) return "";
+            return code.toString()
+                .toUpperCase()
+                .replace(/^(FR|IT)\s*/i, '')
+                .replace(/\s*CE$/i, '')
+                .replace(/[^0-9A-Z]/g, '')
+                .trim();
+        }
+
+        // Code court sans préfixe pays, pour l'affichage
+        function shortCode(code) {
+            return String(code || '').replace(/^(FR|IT)\s*/i, '');
+        }
+
+        // IndexedDB
+        function openIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (db.objectStoreNames.contains(DB_STORE)) db.deleteObjectStore(DB_STORE);
+                    db.createObjectStore(DB_STORE, { autoIncrement: true });
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function getCachedRecordsFromIDB() {
+            try {
+                const db = await openIndexedDB();
+                return new Promise((resolve) => {
+                    const tx = db.transaction(DB_STORE, "readonly");
+                    const store = tx.objectStore(DB_STORE);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                });
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function saveRecordsToIDB(records) {
+            try {
+                const db = await openIndexedDB();
+                const tx = db.transaction(DB_STORE, "readwrite");
+                const store = tx.objectStore(DB_STORE);
+                store.clear();
+                for (let r of records) {
+                    store.put(r);
+                }
+                return new Promise((resolve) => {
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                });
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Parsing CSV officiel (même format pour la DGAL et pour la liste italienne convertie)
+        function parseDgalTxt(text) {
+            const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+            const parsedRecords = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line || line.startsWith('"Département"') || line.startsWith('Département') || line.startsWith('"Numero de département"')) {
+                    continue;
+                }
+
+                let fields = [];
+                let currentField = '';
+                let inQuotes = false;
+                for (let c = 0; c < line.length; c++) {
+                    const char = line[c];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(currentField.trim());
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
+                }
+                fields.push(currentField.trim());
+
+                if (fields.length >= 4) {
+                    const dept = fields[0] ? fields[0].replace(/"/g, '').trim() : '';
+                    const numAgrement = fields[1] ? fields[1].replace(/"/g, '').trim() : '';
+                    const siret = fields[2] ? fields[2].replace(/"/g, '').trim() : '';
+                    const raisonSociale = fields[3] ? fields[3].replace(/"/g, '').trim() : '';
+                    const adresse = fields[4] ? fields[4].replace(/"/g, '').trim() : '';
+                    const codePostal = fields[5] ? fields[5].replace(/"/g, '').trim() : '';
+                    const commune = fields[6] ? fields[6].replace(/"/g, '').trim() : '';
+                    const categorie = fields[7] ? fields[7].replace(/"/g, '').trim() : '';
+                    const activites = fields[8] ? fields[8].replace(/"/g, '').trim() : '';
+                    const especes = fields[9] ? fields[9].replace(/"/g, '').trim() : '';
+
+                    const cleanCode = cleanAgrementCode(numAgrement);
+
+                    if (cleanCode && /\d/.test(numAgrement)) {
+                        parsedRecords.push({
+                            dept,
+                            numAgrement,
+                            cleanCode,
+                            siret,
+                            raisonSociale,
+                            adresse,
+                            codePostal,
+                            commune,
+                            categorie,
+                            activites,
+                            especes
+                        });
+                    }
+                }
+            }
+            return parsedRecords;
+        }
+
+        function setDbStatusText(text, isError = false) {
+            const el = document.getElementById('about-dgal-count');
+            if (!el) return;
+            el.textContent = text;
+            el.className = "mt-1 font-medium " + (isError ? "text-red-600" : "text-blue-600");
+        }
+
+        function setItalyStatusText(text, isError = false) {
+            const el = document.getElementById('about-it-count');
+            if (!el) return;
+            el.textContent = text;
+            el.className = "mt-1 font-medium " + (isError ? "text-red-600" : "text-blue-600");
+        }
+
+        // Reconstruit l'index à partir des deux listes. Clé = « PAYS:code » (FR:64348100, IT:0100M)
+        // pour qu'un numéro français ne puisse jamais être confondu avec un numéro italien.
+        function rebuildIndex() {
+            etablissementsMap.clear();
+            allRecordsList = frRecords.concat(itRecords);
+            for (const r of allRecordsList) {
+                if (!r.pays) r.pays = 'FR'; // anciens enregistrements du cache IndexedDB
+                if (!r.searchText) r.searchText = normalizeText(`${r.raisonSociale} ${r.commune} ${r.codePostal}`);
+                const key = `${r.pays}:${r.cleanCode}`;
+                const list = etablissementsMap.get(key);
+                if (list) list.push(r); else etablissementsMap.set(key, [r]);
+            }
+            isDbLoaded = allRecordsList.length > 0;
+        }
+
+        function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null, live = true) {
+            frRecords = records;
+            rebuildIndex();
+            dbLoadState = 'ready';
+
+            const when = !live ? ' · copie de secours, peut ne pas être à jour'
+                : (timestamp ? ` · liste chargée le ${new Date(timestamp).toLocaleDateString('fr-FR')}` : '');
+            setDbStatusText(`France : ${records.length.toLocaleString('fr-FR')} établissements (${sourceName}${when})`);
+        }
+
+        function readDbMeta() {
+            try { return JSON.parse(localStorage.getItem('dgal_meta') || 'null'); } catch (e) { return null; }
+        }
+        function writeDbMeta(meta) {
+            try { localStorage.setItem('dgal_meta', JSON.stringify(meta)); } catch (e) {}
+        }
+
+        async function fetchTextWithTimeout(url, timeoutMs = 30000, cacheMode = 'no-store') {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const res = await fetch(url, { cache: cacheMode, signal: controller.signal });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.text();
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        // Chargement de la liste : cache local immédiat, puis source en direct (relais → accès direct → copie locale)
+        async function loadOfficialDatabase() {
+            const meta = readDbMeta();
+            let usingCache = false;
+
+            // A. Cache local : la recherche fonctionne tout de suite
+            const cached = await getCachedRecordsFromIDB();
+            if (cached && cached.length >= MIN_EXPECTED_RECORDS) {
+                hydrateMemoryDB(cached, (meta && meta.source) || "Cache local", meta && meta.time, !!(meta && meta.live));
+                usingCache = true;
+                // Cache récent ET issu d'une source en direct : inutile de re-télécharger.
+                // Une copie de secours, elle, déclenche toujours une nouvelle tentative en direct.
+                if (meta && meta.live && Date.now() - meta.time < CACHE_MAX_AGE_MS) return;
+            }
+
+            // B. Sources en direct, dans l'ordre
+            for (const src of DGAL_SOURCES) {
+                try {
+                    const text = await fetchTextWithTimeout(src.url);
+                    const records = parseDgalTxt(text);
+                    if (records.length < MIN_EXPECTED_RECORDS) {
+                        throw new Error(`fichier inattendu (${records.length} lignes valides)`);
+                    }
+                    const now = Date.now();
+                    hydrateMemoryDB(records, src.name, now, src.live);
+                    writeDbMeta({ time: now, source: src.name, count: records.length, live: src.live });
+                    saveRecordsToIDB(records);
+                    return;
+                } catch (err) {
+                    console.warn(`Source « ${src.name} » indisponible : ${err.message}`);
+                }
+            }
+
+            // C. Aucune source joignable
+            if (usingCache) {
+                const when = meta && meta.time ? ` du ${new Date(meta.time).toLocaleDateString('fr-FR')}` : '';
+                setDbStatusText(`France : mise à jour impossible, liste enregistrée${when} utilisée (${frRecords.length.toLocaleString('fr-FR')} établissements).`, true);
+            } else {
+                dbLoadState = 'failed';
+                setDbStatusText("France : liste officielle indisponible pour le moment.", true);
+                showNotification("Liste officielle française indisponible. Vérifiez la connexion puis rechargez la page.", 'error', false);
+            }
+        }
+
+        // Liste italienne : fichier hébergé avec l'application (mis à jour chaque mois).
+        // Le cache normal du navigateur suffit : pas de re-téléchargement à chaque ouverture.
+        async function loadItalianList() {
+            try {
+                const text = await fetchTextWithTimeout(IT_LIST_URL, 60000, 'default');
+                const records = parseDgalTxt(text);
+                if (records.length < IT_MIN_RECORDS) throw new Error(`fichier inattendu (${records.length} lignes valides)`);
+                records.forEach(r => { r.pays = 'IT'; });
+                itRecords = records;
+                itLoadState = 'ready';
+                rebuildIndex();
+
+                let dateTxt = '';
+                try {
+                    const meta = JSON.parse(await fetchTextWithTimeout(IT_META_URL, 10000, 'default'));
+                    if (meta.listDate) dateTxt = ` · liste du ${meta.listDate.slice(0, 10).split('-').reverse().join('/')}`;
+                } catch (e) { /* la date est facultative */ }
+                setItalyStatusText(`Italie : ${records.length.toLocaleString('fr-FR')} établissements (Ministero della Salute${dateTxt})`);
+            } catch (err) {
+                itLoadState = 'failed';
+                console.warn(`Liste italienne indisponible : ${err.message}`);
+                setItalyStatusText("Italie : liste indisponible pour le moment.", true);
+            }
+        }
+
+        // === RECHERCHE (début) ===
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function normalizeText(str) {
+            return (str || '').toString().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, ' ').trim();
+        }
+
+        // Pays indiqué au début de la saisie : « IT 2874 », « FR 64.348.100 »… ('' si absent)
+        function detectCountry(input) {
+            const m = String(input || '').trim().toUpperCase().match(/^(FR|IT)(?=[\s.\d]|$)/);
+            return m ? m[1] : '';
+        }
+
+        // France : au moins 5 chiffres, 6 à 11 caractères (64.348.100).
+        // Italie : plus court, avec des lettres possibles (IT 2874, IT 505 L, IT W5B1S, IT 0 100 M).
+        function looksLikeAgrementCode(input, pays = '') {
+            const c = cleanAgrementCode(input);
+            const digits = (c.match(/\d/g) || []).length;
+            if (pays === 'IT') return /^[0-9A-Z]{3,9}$/.test(c) && digits >= 1;
+            return /^[0-9][0-9A-Z]{5,10}$/.test(c) && digits >= 5;
+        }
+
+        // Fusionne les lignes d'un même site (même SIRET, adresse, nom) qui ne diffèrent que par l'activité
+        function mergeSameSite(records) {
+            const groups = new Map();
+            for (const r of records) {
+                const key = `${r.pays || ''}|${r.siret}|${normalizeText(r.adresse)}|${normalizeText(r.raisonSociale)}`;
+                const g = groups.get(key);
+                if (!g) { groups.set(key, { ...r }); continue; }
+                const acts = new Set([...(g.activites || '').split(';'), ...(r.activites || '').split(';')]
+                    .map(a => a.trim()).filter(Boolean));
+                g.activites = [...acts].join('; ');
+                const esp = new Set([...(g.especes || '').split('-'), ...(r.especes || '').split('-')]
+                    .map(e => e.trim()).filter(Boolean));
+                g.especes = [...esp].join('-');
+            }
+            return [...groups.values()];
+        }
+
+        const MAX_RESULTS = 30;
+
+        // Retourne { mode, results, total } avec mode = exact | multiple | near | none | notloaded
+        // Règle : un numéro d'agrément n'est JAMAIS deviné. Soit il existe exactement, soit on propose
+        // des suggestions que l'utilisateur doit choisir lui-même.
+        function lookupEstablishment(inputQuery, paysHint = '') {
+            const q = (inputQuery || '').trim();
+            if (!isDbLoaded) return { mode: 'notloaded', results: [], total: 0 };
+            if (!q) return { mode: 'none', results: [], total: 0 };
+
+            const pays = paysHint || detectCountry(q);
+            if (pays === 'IT' && !itRecords.length && itLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
+            if (pays !== 'IT' && !frRecords.length && dbLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
+
+            const asList = (list) => {
+                const total = list.length;
+                const mode = total === 1 ? 'exact' : (total > 1 ? 'multiple' : 'none');
+                return { mode, results: list.slice(0, MAX_RESULTS), total };
+            };
+
+            const codeLike = looksLikeAgrementCode(q, pays);
+            const code = cleanAgrementCode(q);
+
+            // 1. Numéro d'agrément : correspondance exacte uniquement
+            if (codeLike) {
+                const exact = (pays ? [pays] : ['FR', 'IT']).flatMap(p => etablissementsMap.get(`${p}:${code}`) || []);
+                if (exact.length) return asList(mergeSameSite(exact));
+            }
+
+            // 2. SIREN (9) ou SIRET (14) pour la France, P.IVA (11 chiffres) pour l'Italie
+            const digitsOnly = q.replace(/[\s.]/g, '');
+            if (/^(\d{9}|\d{11}|\d{14})$/.test(digitsOnly)) {
+                const wanted = digitsOnly.length === 11 ? 'IT' : 'FR';
+                const hits = allRecordsList.filter(e => e.pays === wanted && (e.siret || '').replace(/\D/g, '').startsWith(digitsOnly));
+                if (hits.length) return asList(mergeSameSite(hits));
+            }
+
+            // 3. Numéro inconnu : suggestions à UN seul caractère d'écart (erreur de lecture probable), dans le même pays
+            if (codeLike) {
+                const prefix = `${pays || 'FR'}:`;
+                const near = [];
+                for (const [key, list] of etablissementsMap) {
+                    if (!key.startsWith(prefix)) continue;
+                    const c = key.slice(prefix.length);
+                    if (c.length !== code.length) continue;
+                    let diff = 0;
+                    for (let i = 0; i < c.length && diff < 2; i++) if (c[i] !== code[i]) diff++;
+                    if (diff === 1) near.push(...mergeSameSite(list));
+                    if (near.length >= 8) break;
+                }
+                return near.length
+                    ? { mode: 'near', results: near.slice(0, 8), total: near.length }
+                    : { mode: 'none', results: [], total: 0 };
+            }
+
+            // 4. Recherche par nom / commune / code postal : tous les mots doivent être présents
+            const normQuery = normalizeText(q);
+            if (normQuery.length < 3) return { mode: 'none', results: [], total: 0 };
+            const tokens = normQuery.split(' ').filter(Boolean);
+            const hits = mergeSameSite(allRecordsList.filter(e => tokens.every(t => (e.searchText || '').includes(t))));
+            hits.sort((x, y) => {
+                const sx = normalizeText(x.raisonSociale).startsWith(normQuery) ? 0 : 1;
+                const sy = normalizeText(y.raisonSociale).startsWith(normQuery) ? 0 : 1;
+                return sx - sy;
+            });
+            return asList(hits);
+        }
+        // === RECHERCHE (fin) ===
+
+        function hideCandidates() {
+            const box = document.getElementById('candidates-box');
+            box.classList.add('hidden');
+            box.innerHTML = '';
+        }
+
+        // Efface tout retour précédent avant une nouvelle recherche ou une nouvelle photo
+        function resetFeedback() {
+            hideNotification();
+            hideCandidates();
+            hideScanReport();
+            document.getElementById('result-card').classList.add('hidden');
+        }
+
+        // France : « 49000 ANGERS » ; Italie : « CHERASCO (CN) » (pas de code postal dans la source)
+        function placeLine(e) {
+            if (e.pays === 'IT') return `${e.commune || ''}${e.dept ? ` (${e.dept})` : ''}`.trim();
+            return `${e.codePostal || ''} ${e.commune || ''}`.trim();
+        }
+        function fullAddressOf(e) {
+            const tail = e.pays === 'IT' ? `${placeLine(e)}, Italia` : placeLine(e);
+            return `${e.adresse || ''} ${tail}`.trim();
+        }
+
+        // Liste de choix : un titre court, les établissements, et éventuellement un lien de signalement
+        function renderCandidates(list, { heading = '', fromScan = false, reportLink = false, back = null } = {}) {
+            const box = document.getElementById('candidates-box');
+            box.innerHTML = '';
+            if (back) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
+                b.textContent = '← Toutes les estampilles de la photo';
+                b.addEventListener('click', back);
+                box.appendChild(b);
+            }
+            if (heading) {
+                const h = document.createElement('p');
+                h.className = 'text-xs sm:text-sm font-medium text-slate-700 px-1';
+                h.textContent = heading;
+                box.appendChild(h);
+            }
+            list.forEach(etab => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50 rounded-xl px-3 py-2 transition active:scale-[0.99]';
+                const name = document.createElement('div');
+                name.className = 'text-xs sm:text-sm font-semibold text-slate-800';
+                name.textContent = etab.raisonSociale || 'Nom non précisé';
+                const meta = document.createElement('div');
+                meta.className = 'text-[11px] text-slate-500';
+                meta.textContent = `${etab.numAgrement || etab.cleanCode} · ${placeLine(etab)}`.trim();
+                btn.append(name, meta);
+                btn.addEventListener('click', () => displayEstablishment(etab, { fromScan }));
+                box.appendChild(btn);
+            });
+            if (reportLink) {
+                const link = document.createElement('button');
+                link.type = 'button';
+                link.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
+                link.textContent = "Aucun ne correspond ? Envoyer la photo à l'auteur";
+                link.addEventListener('click', () => openContact({ kind: 'scan', withScan: true }));
+                box.appendChild(link);
+            }
+            box.classList.remove('hidden');
+        }
+
+        // Affiche le résultat d'une recherche selon son mode, avec des messages courts
+        function showLookupResult(res, query, source) {
+            resetFeedback();
+            const fromScan = source === 'scan';
+
+            if (res.mode === 'notloaded') {
+                showNotification((dbLoadState === 'failed' || itLoadState === 'failed')
+                    ? "Liste officielle indisponible. Vérifiez la connexion puis rechargez la page."
+                    : "Liste en cours de chargement. Réessayez dans un instant.", 'error');
+            } else if (res.mode === 'exact') {
+                displayEstablishment(res.results[0], { fromScan });
+            } else if (res.mode === 'multiple') {
+                const more = res.total > res.results.length ? ` (${res.results.length} premiers affichés)` : '';
+                renderCandidates(res.results, { heading: `${res.total} résultats pour « ${query} »${more}`, fromScan });
+            } else if (res.mode === 'near') {
+                const heading = query.includes('?')
+                    ? `Lecture partielle (${query}). Est-ce l'un de ces établissements ?`
+                    : `${query} n'existe pas. Vouliez-vous dire :`;
+                renderCandidates(res.results, { heading, fromScan, reportLink: fromScan });
+            } else if (fromScan) {
+                showScanReport('notfound');
+            } else {
+                showNotification(`Aucun établissement pour « ${query} ».`, 'error');
+            }
+        }
+
+        // === ACTIVITÉS (début) ===
+        // Les fichiers officiels codent chaque activité « section(activité) », ex. 0(CS), I(CP), V(MP).
+        // Sections et activités de l'annexe III du règlement (CE) 853/2004.
+        const SECTION_ORDER = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'RC'];
+        const SECTION_LABELS = {
+            '0': "Activités générales",
+            'I': "Viandes d'ongulés domestiques",
+            'II': "Viandes de volailles et de lagomorphes",
+            'III': "Viandes de gibier d'élevage",
+            'IV': "Viandes de gibier sauvage",
+            'V': "Viandes hachées, préparations de viandes et VSM",
+            'VI': "Produits à base de viande",
+            'VII': "Mollusques bivalves vivants",
+            'VIII': "Produits de la pêche",
+            'IX': "Lait cru, colostrum et produits laitiers",
+            'X': "Œufs et ovoproduits",
+            'XI': "Cuisses de grenouilles et escargots",
+            'XII': "Graisses animales fondues et cretons",
+            'XIII': "Estomacs, vessies et boyaux traités",
+            'XIV': "Gélatine",
+            'XV': "Collagène",
+            'XVI': "Produits hautement raffinés",
+            'RC': "Restauration collective"
+        };
+        const ACTIVITY_LABELS = {
+            CS: "Entreposage frigorifique",
+            RW: "Reconditionnement",
+            WM: "Marché de gros",
+            SH: "Abattoir",
+            CP: "Atelier de découpe",
+            GHE: "Atelier de traitement du gibier",
+            MM: "Viandes hachées",
+            MP: "Préparations de viandes",
+            MSM: "Viandes séparées mécaniquement",
+            PP: "Transformation",
+            DC: "Centre d'expédition",
+            PC: "Centre de purification",
+            FV: "Navire-usine",
+            ZV: "Navire congélateur",
+            FFPP: "Produits de la pêche frais",
+            AH: "Halle de criée",
+            CC: "Centre de collecte",
+            EPC: "Centre d'emballage d'œufs",
+            LEP: "Production d'œufs liquides",
+            MSFP: "Produits de la pêche séparés mécaniquement",
+            CUISCEN: "Cuisine centrale"
+        };
+
+        // "I(CP)" (ou "CP (I)", ou "CS" seul) -> { section, code, raw } ; null si le format est inconnu
+        function parseActivityCode(token) {
+            const t = token.replace(/\s+/g, '').toUpperCase();
+            // Sections : chiffres romains de l'annexe III, ou RC (restauration collective, propre au fichier DGAL)
+            let m = t.match(/^([0IVX]+|RC)\(([A-Z]+)\)$/);
+            if (m) return { section: m[1], code: m[2], raw: t };
+            m = t.match(/^([A-Z]+)\(([0IVX]+|RC)\)$/);
+            if (m) return { section: m[2], code: m[1], raw: `${m[2]}(${m[1]})` };
+            if (ACTIVITY_LABELS[t]) return { section: '', code: t, raw: t };
+            return null;
+        }
+
+        function makeActivityBadge(label, codeText, title) {
+            const badge = document.createElement('span');
+            badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200";
+            badge.textContent = label;
+            if (codeText) {
+                const code = document.createElement('span');
+                code.className = "text-slate-400 font-normal";
+                code.textContent = codeText;
+                badge.appendChild(code);
+            }
+            if (title) badge.title = title;
+            return badge;
+        }
+
+        // Regroupe les activités par filière (section), dans l'ordre du règlement
+        function renderActivities(container, activitesText) {
+            container.innerHTML = '';
+            const tokens = [...new Set(activitesText.split(/[;,-]/).map(a => a.trim()).filter(Boolean))];
+            if (!tokens.length) {
+                const span = document.createElement('span');
+                span.className = 'text-xs text-slate-500';
+                span.textContent = activitesText;
+                container.appendChild(span);
+                return;
+            }
+
+            const groups = new Map();
+            const unparsed = [];
+            for (const tok of tokens) {
+                const a = parseActivityCode(tok);
+                if (!a) { unparsed.push(tok); continue; }
+                if (!groups.has(a.section)) groups.set(a.section, []);
+                const list = groups.get(a.section);
+                if (!list.some(x => x.code === a.code)) list.push(a);
+            }
+
+            const rank = (sec) => { const i = SECTION_ORDER.indexOf(sec); return i === -1 ? 99 : i; };
+            [...groups.keys()].sort((x, y) => rank(x) - rank(y)).forEach(sec => {
+                const group = document.createElement('div');
+                if (sec) {
+                    const head = document.createElement('div');
+                    head.className = "text-[11px] sm:text-xs font-semibold text-slate-600 mb-1";
+                    head.textContent = SECTION_LABELS[sec] || `Section ${sec}`;
+                    const num = document.createElement('span');
+                    num.className = "text-slate-400 font-normal";
+                    num.textContent = ` (section ${sec})`;
+                    head.appendChild(num);
+                    group.appendChild(head);
+                }
+                const row = document.createElement('div');
+                row.className = "flex flex-wrap gap-1.5";
+                groups.get(sec).forEach(a => {
+                    const label = ACTIVITY_LABELS[a.code] || a.code;
+                    row.appendChild(makeActivityBadge(label, ACTIVITY_LABELS[a.code] ? a.code : '', `Code officiel : ${a.raw}`));
+                });
+                group.appendChild(row);
+                container.appendChild(group);
+            });
+
+            if (unparsed.length) {
+                const row = document.createElement('div');
+                row.className = "flex flex-wrap gap-1.5";
+                unparsed.forEach(tok => row.appendChild(makeActivityBadge(tok, '', '')));
+                container.appendChild(row);
+            }
+        }
+        // === ACTIVITÉS (fin) ===
+
+        // === ESPÈCES (début) ===
+        // Codes de la colonne « Espèce » des fichiers officiels, séparés par « - » (ex. B-C/O-P).
+        // Légende officielle DGAL / UE ; ordre d'affichage = ordre de cette liste.
+        const SPECIES_LABELS = {
+            B: "Bovins",
+            'C/O': "Ovins et caprins",
+            O: "Ovins",
+            C: "Caprins",
+            P: "Porcins",
+            S: "Équidés",
+            A: "Volailles",
+            L: "Lapins et lièvres d'élevage",
+            R: "Ratites (autruches, émeus…)",
+            fG: "Gibier d'élevage",
+            wU: "Grand gibier sauvage",
+            wA: "Gibier à plumes sauvage",
+            wL: "Lièvres et lapins sauvages",
+            wG: "Autre gibier sauvage à poils",
+            F: "Grenouilles",
+            SN: "Escargots"
+        };
+        const SPECIES_ORDER = Object.keys(SPECIES_LABELS);
+
+        // "B-C-C/O-P" -> ["B", "C/O", "P"] : C et O seuls sont redondants quand C/O est présent
+        function parseSpecies(text) {
+            const codes = [...new Set((text || '').split('-').map(s => s.trim()).filter(Boolean))];
+            const filtered = codes.includes('C/O') ? codes.filter(c => c !== 'C' && c !== 'O') : codes;
+            const rank = (c) => { const i = SPECIES_ORDER.indexOf(c); return i === -1 ? 99 : i; };
+            return filtered.sort((x, y) => rank(x) - rank(y));
+        }
+
+        function renderSpecies(etab) {
+            const block = document.getElementById('res-especes-block');
+            const container = document.getElementById('res-especes-container');
+            container.innerHTML = '';
+            const codes = parseSpecies(etab.especes);
+            block.classList.toggle('hidden', codes.length === 0);
+            codes.forEach(c => {
+                const label = SPECIES_LABELS[c];
+                container.appendChild(makeActivityBadge(label || c, '', `Code officiel : ${c}`));
+            });
+        }
+        // === ESPÈCES (fin) ===
+
+        // Affichage des résultats
+        function displayEstablishment(etab, { fromScan = false, keepCandidates = false } = {}) {
+            currentEtab = etab;
+            const isIT = etab.pays === 'IT';
+            hideNotification();
+            if (!keepCandidates) hideCandidates();
+            hideScanReport();
+            document.getElementById('res-scan-note').classList.toggle('hidden', !fromScan);
+
+            const resultCard = document.getElementById('result-card');
+            resultCard.classList.remove('hidden');
+
+            document.getElementById('res-raison-sociale').textContent = etab.raisonSociale || 'Nom non précisé';
+            document.getElementById('res-dept-badge').textContent = `${isIT ? 'Prov.' : 'Dép.'} ${etab.dept || '--'}`;
+            document.getElementById('res-header-city').textContent = placeLine(etab) || (isIT ? 'Italie' : 'France');
+            document.getElementById('res-oval-pays').textContent = isIT ? 'ITALIA' : 'FRANCE';
+            document.getElementById('res-agrement-ovale').textContent = isIT
+                ? shortCode(etab.numAgrement || etab.cleanCode)
+                : (etab.numAgrement || etab.cleanCode);
+            document.getElementById('res-siret-label').textContent = isIT ? 'P. IVA' : 'SIRET';
+            document.getElementById('res-siret-header').textContent = etab.siret || 'Non communiqué';
+            document.getElementById('res-adresse').textContent = etab.adresse || 'Adresse non spécifiée';
+            document.getElementById('res-cp-ville').textContent = placeLine(etab);
+
+            // Badges d'activités
+            const actContainer = document.getElementById('res-activites-container');
+            actContainer.innerHTML = '';
+            if (etab.activites) {
+                renderActivities(actContainer, etab.activites);
+            } else {
+                actContainer.innerHTML = '<span class="text-xs text-slate-400">Non spécifié</span>';
+            }
+            renderSpecies(etab);
+
+            const fullAddress = fullAddressOf(etab);
+            const locationQuery = `${etab.raisonSociale || ''} ${fullAddress}`.trim();
+            
+            // Lien Google Maps Navigation
+            document.getElementById('btn-google-maps').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery)}`;
+            
+            // Pappers : France uniquement (SIRET). En Italie, la P. IVA est affichée sans lien.
+            const pappersBtn = document.getElementById('btn-pappers');
+            const pappersIcon = document.getElementById('res-pappers-icon');
+            if (isIT) {
+                pappersBtn.removeAttribute('href');
+                pappersBtn.removeAttribute('target');
+                pappersBtn.removeAttribute('title');
+                pappersBtn.classList.add('pointer-events-none');
+                pappersIcon.classList.add('hidden');
+                pappersBtn.setAttribute('aria-label', etab.siret ? `Partita IVA ${etab.siret}` : 'Partita IVA non communiquée');
+            } else {
+                pappersBtn.classList.remove('pointer-events-none');
+                pappersIcon.classList.remove('hidden');
+                pappersBtn.target = '_blank';
+                pappersBtn.title = 'Fiche Entreprise (Pappers)';
+                // Lien Pappers via https://www.pappers.fr/recherche?q={siret}
+                const cleanSiretDigits = (etab.siret || '').replace(/\D/g, '');
+                const pappersQuery = cleanSiretDigits.length >= 9 ? cleanSiretDigits : (etab.raisonSociale || etab.numAgrement);
+                pappersBtn.href = `https://www.pappers.fr/recherche?q=${encodeURIComponent(pappersQuery)}`;
+                pappersBtn.setAttribute('aria-label', etab.siret
+                    ? `SIRET ${etab.siret} : voir la fiche entreprise sur Pappers (nouvel onglet)`
+                    : 'Voir la fiche entreprise sur Pappers (nouvel onglet)');
+            }
+
+            refreshIcons();
+
+            // Le lecteur d'écran annonce le nom de l'établissement ; sur mobile, le clavier se referme
+            document.getElementById('res-raison-sociale').focus({ preventScroll: true });
+            // Défilement maîtrisé - cale le résultat exactement au sommet de la page
+            resultCard.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'start' });
+        }
+
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error("Lecture du fichier impossible"));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Réduit l'image avant envoi (économise la bande passante et les limites du proxy)
+        function resizeImage(dataUrl, maxSide = 1280, quality = 0.85) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve({
+                        dataUrl: canvas.toDataURL('image/jpeg', quality),
+                        width: canvas.width, height: canvas.height,
+                        originalWidth: img.width, originalHeight: img.height
+                    });
+                };
+                img.onerror = () => reject(new Error("Image illisible"));
+                img.src = dataUrl;
+            });
+        }
+
+        // === SCAN (début) ===
+        // Dernière photo analysée : sert au signalement (photo envoyée à l'OCR + détails techniques)
+        let lastScan = null;
+
+        class ScanError extends Error {
+            constructor(message, info = {}) { super(message); Object.assign(this, info); }
+        }
+
+        // Appel au relais de lecture (les clés des services d'IA ne sont jamais exposées au navigateur)
+        //   { image }                → { estampilles: [{ numero, pays, mention, lisibilite, box }], diag }
+        async function callOcr(body) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), OCR_TIMEOUT_MS);
+            let resp;
+            try {
+                resp = await fetch(OCR_PROXY_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                    signal: controller.signal
+                });
+            } catch (e) {
+                const kind = navigator.onLine === false ? 'offline' : (e.name === 'AbortError' ? 'timeout' : 'network');
+                throw new ScanError(kind === 'timeout' ? `Pas de réponse après ${OCR_TIMEOUT_MS / 1000} s` : (e.message || 'Erreur réseau'), { kind, name: e.name });
+            } finally {
+                clearTimeout(timer);
+            }
+
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) {
+                throw new ScanError(data.error || `HTTP ${resp.status}`, {
+                    kind: resp.status === 429 ? 'ratelimit' : 'service',
+                    status: resp.status, serverError: data.error || null, serverCode: data.code || null, diag: data.diag || null
+                });
+            }
+            return data;
+        }
+
+        // Numéro avec caractères illisibles (« ? ») : établissements dont le numéro correspond, dans le même pays.
+        // Ce ne sont que des suggestions : l'utilisateur choisit lui-même.
+        function lookupPattern(numero, pays = 'FR') {
+            if (!isDbLoaded) return { mode: 'notloaded', results: [], total: 0 };
+            const pat = numero.toUpperCase().replace(/^(FR|IT)\s*/, '').replace(/\s*CE$/, '').replace(/[^0-9A-Z?]/g, '');
+            const unknown = (pat.match(/\?/g) || []).length;
+            if (!unknown || unknown > 2 || pat.length < (pays === 'IT' ? 4 : 6)) return { mode: 'none', results: [], total: 0 };
+            const re = new RegExp('^' + pat.replace(/\?/g, '[0-9A-Z]') + '$');
+            const prefix = `${pays}:`;
+            const results = [];
+            for (const [key, list] of etablissementsMap) {
+                if (!key.startsWith(prefix)) continue;
+                if (re.test(key.slice(prefix.length))) results.push(...mergeSameSite(list));
+                if (results.length >= 8) break;
+            }
+            return { mode: results.length ? 'near' : 'none', results: results.slice(0, 8), total: results.length };
+        }
+
+        // Ce que vaut une lecture : trouvée, à vérifier, étrangère, illisible…
+        function analyseReading(r) {
+            const code = ((r && r.numero) || '').trim();
+            if (!code) return { status: 'unreadable', res: null, code: '' };
+            const pays = ((r.pays || '') || detectCountry(code)).toUpperCase();
+            if (!r.pays && pays) r.pays = pays;
+            if (pays && pays !== 'FR' && pays !== 'IT') return { status: 'foreign', res: null, code };
+            if (code.includes('?')) {
+                const res = lookupPattern(code, pays || 'FR');
+                return { status: res.mode === 'notloaded' ? 'notloaded' : (res.results.length ? 'near' : 'none'), res, code };
+            }
+            if (!looksLikeAgrementCode(code, pays)) return { status: 'uncertain', res: null, code };
+            const res = lookupEstablishment(code, pays);
+            const status = { exact: 'exact', multiple: 'multiple', near: 'near', notloaded: 'notloaded' }[res.mode] || 'none';
+            return { status, res, code };
+        }
+
+
+        const OFFLINE_PHOTO_MSG = "Hors ligne : la lecture de photo est impossible. Saisissez le numéro à la main, la recherche fonctionne sans connexion.";
+
+        function setScanStatus(title, detail) {
+            document.getElementById('scan-status-title').textContent = title;
+            document.getElementById('scan-status-detail').textContent = detail;
+        }
+
+        // 1. L'IA repère chaque ovale et lit son numéro, en une seule requête.
+        // 2. Chaque numéro est vérifié dans la liste officielle ; rien n'est jamais deviné.
+        async function handleImageFile(file) {
+            if (!file) return;
+            resetFeedback();
+
+            if (navigator.onLine === false) {
+                showNotification(OFFLINE_PHOTO_MSG, 'error');
+                return;
+            }
+
+            const progressBox = document.getElementById('scan-progress-box');
+            const previewImg = document.getElementById('scanned-image-preview');
+            setScanStatus("Recherche des estampilles…", "Repérage des ovales sur la photo");
+            progressBox.classList.remove('hidden');
+
+            const started = Date.now();
+            lastScan = { reason: null, image: null, code: null, lookupMode: null, diag: null, error: null, stamps: null,
+                         imageInfo: { type: file.type || '?', bytes: file.size } };
+
+            try {
+                const dataUrl = await readFileAsDataUrl(file);
+                previewImg.src = dataUrl;
+
+                let small;
+                try {
+                    small = await resizeImage(dataUrl, DETECT_MAX_SIDE, 0.85);
+                } catch (e) {
+                    throw new ScanError("Le navigateur ne sait pas ouvrir cette image", { kind: 'image' });
+                }
+                lastScan.image = small.dataUrl;
+                Object.assign(lastScan.imageInfo, {
+                    original: `${small.originalWidth}x${small.originalHeight}`,
+                    envoyee: `${small.width}x${small.height}`, envoyeeOctets: Math.round(small.dataUrl.length * 0.75)
+                });
+
+                // Lecture (message rassurant si le service est lent)
+                const slowTimer = setTimeout(() => setScanStatus("Lecture en cours…", "Le service est un peu lent, encore quelques secondes"), 7000);
+                let detect;
+                try { detect = await callOcr({ image: small.dataUrl }); } finally { clearTimeout(slowTimer); }
+                lastScan.diag = { detection: detect.diag || null };
+                let readings = Array.isArray(detect.estampilles) ? detect.estampilles
+                    : (detect.agrement ? [{ numero: detect.agrement, pays: '', lisibilite: 'partielle', box: null }] : []);
+                // Les positions des ovales renvoyées par l'IA sont trop imprécises pour découper la photo :
+                // on ne s'en sert plus (ni vignette découpée, ni relecture de près). Une seule requête par photo.
+                const stamps = readings.map(r => ({ reading: r, ...analyseReading(r) }));
+
+                // Une même estampille imprimée plusieurs fois n'est montrée qu'une fois
+                const seen = new Set();
+                const unique = stamps.filter(st => {
+                    if (!st.code) return true;
+                    const key = cleanAgrementCode(st.code) + '|' + (st.reading.pays || '');
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                lastScan.ms = Date.now() - started;
+                lastScan.stamps = unique.map(st => ({
+                    numero: st.code || null, pays: st.reading.pays || null, lisibilite: st.reading.lisibilite,
+                    resultat: st.status
+                }));
+                presentStamps(unique);
+            } catch (err) {
+                lastScan.ms = Date.now() - started;
+                lastScan.error = { message: err.message, kind: err.kind || 'inconnu', status: err.status || null,
+                                   serverError: err.serverError || null, serverCode: err.serverCode || null, name: err.name };
+                if (err.diag) lastScan.diag = { ...(lastScan.diag || {}), erreur: err.diag };
+                if (!(err instanceof ScanError)) console.error(err);
+
+                if (err.kind === 'offline') {
+                    showNotification(OFFLINE_PHOTO_MSG, 'error');
+                } else if (err.kind === 'ratelimit') {
+                    showNotification(err.serverError || "Trop de photos d'un coup. Réessayez dans une minute.", 'error');
+                } else {
+                    showScanReport(err.kind === 'image' ? 'image' : 'error');
+                }
+            } finally {
+                progressBox.classList.add('hidden');
+            }
+        }
+
+        const COUNTRY_NAMES = { ES: 'espagnole', DE: 'allemande', BE: 'belge', NL: 'néerlandaise',
+            PL: 'polonaise', IE: 'irlandaise', UK: 'britannique', GB: 'britannique', PT: 'portugaise', DK: 'danoise',
+            AT: 'autrichienne', CH: 'suisse', LU: 'luxembourgeoise', GR: 'grecque', EL: 'grecque', SE: 'suédoise', FI: 'finlandaise' };
+
+        // Pays d'une estampille lue (FR par défaut)
+        function stampCountry(st) {
+            return (st.reading && st.reading.pays) || detectCountry(st.code) || 'FR';
+        }
+
+        // Affiche le résultat d'une photo : une estampille → comme une recherche ;
+        // plusieurs → la liste de TOUTES les estampilles repérées, lisibles ou non
+        function presentStamps(stamps) {
+            const readable = stamps.filter(st => st.status !== 'unreadable');
+            if (readable.length === 0) {
+                showScanReport('unread');
+                return;
+            }
+            if (stamps.length > 1) {
+                document.getElementById('manual-code-input').value = '';
+                document.getElementById('clear-search-btn').classList.add('hidden');
+                lastScan.lookupMode = 'plusieurs';
+                renderStampList(stamps);
+                return;
+            }
+
+            const st = readable[0];
+            lastScan.code = st.code;
+            lastScan.lookupMode = st.res ? st.res.mode : st.status;
+            document.getElementById('manual-code-input').value = st.code;
+            document.getElementById('clear-search-btn').classList.remove('hidden');
+
+            if (st.status === 'foreign') {
+                const nat = COUNTRY_NAMES[st.reading.pays];
+                showNotification(`Estampille ${nat || 'étrangère'} (${st.reading.pays} ${st.code}) : seules les listes officielles de la France et de l'Italie sont disponibles.`, 'info');
+            } else if (st.status === 'uncertain') {
+                showScanReport('uncertain');
+            } else {
+                showLookupResult(st.res, st.code, 'scan');
+            }
+        }
+
+        function stampStatusText(st) {
+            const n = st.res ? st.res.total : 0;
+            switch (st.status) {
+                case 'exact': { const e = st.res.results[0]; return `${e.raisonSociale || 'Nom non précisé'} · ${e.commune || ''}`.trim(); }
+                case 'multiple': return `${n} établissements avec ce numéro`;
+                case 'near': return st.code.includes('?')
+                    ? `Lecture partielle · ${n} possibilité${n > 1 ? 's' : ''}`
+                    : `Introuvable tel quel · ${n} suggestion${n > 1 ? 's' : ''}`;
+                case 'foreign': return `Établissement hors de France et d'Italie (${st.reading.pays})`;
+                case 'uncertain': return 'Lecture incertaine';
+                case 'notloaded': return 'Liste en cours de chargement';
+                case 'unreadable': return 'Illisible';
+                default: return 'Introuvable dans la liste officielle';
+            }
+        }
+
+        // Vignette : un ovale d'estampille dessiné en diagonale (pour remplir le carré), avec le pays,
+        // le numéro réellement lu et « CE ». Purement décoratif : le numéro est aussi écrit à côté.
+        function stampIcon(st) {
+            const NS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.setAttribute('class', 'w-10 h-10 shrink-0 rounded-md bg-slate-50 border border-slate-200 '
+                + (st.status === 'exact' ? 'text-slate-800' : 'text-slate-400'));
+            const g = document.createElementNS(NS, 'g');
+            g.setAttribute('transform', 'rotate(-35 50 50)');
+            const oval = document.createElementNS(NS, 'ellipse');
+            Object.entries({ cx: 50, cy: 50, rx: 46, ry: 28, fill: 'none', stroke: 'currentColor', 'stroke-width': 3.5 })
+                .forEach(([k, v]) => oval.setAttribute(k, v));
+            g.appendChild(oval);
+            let lines;
+            if (st.code) {
+                const short = shortCode(st.code);
+                lines = [[stampCountry(st), 38, 10.5], [short, 54.5, short.length > 10 ? 9 : 11], ['CE', 69, 10]];
+            } else {
+                // Estampille illisible : un grand « ? », avec le pays et/ou la mention seulement s'ils ont été lus
+                const top = st.reading.pays || '', bottom = st.reading.mention || '';
+                lines = [];
+                if (top) lines.push([top, 34, 10.5]);
+                lines.push(['?', top && bottom ? 60 : top ? 64 : bottom ? 57 : 63, top || bottom ? 28 : 38]);
+                if (bottom) lines.push([bottom, 74, 10]);
+            }
+            lines.forEach(([txt, y, size]) => {
+                const t = document.createElementNS(NS, 'text');
+                Object.entries({ x: 50, y, 'text-anchor': 'middle', 'font-size': size, 'font-weight': 700,
+                    'font-family': 'ui-monospace, Menlo, Consolas, monospace', fill: 'currentColor' })
+                    .forEach(([k, v]) => t.setAttribute(k, v));
+                t.textContent = txt;
+                g.appendChild(t);
+            });
+            svg.appendChild(g);
+            return svg;
+        }
+
+        // Liste des estampilles d'une photo : ovale avec le numéro lu, établissement trouvé
+        function renderStampList(stamps) {
+            resetFeedback();
+            const box = document.getElementById('candidates-box');
+            box.innerHTML = '';
+            const backToList = () => renderStampList(stamps);
+
+            const h = document.createElement('p');
+            h.className = 'text-xs sm:text-sm font-medium text-slate-700 px-1';
+            h.textContent = `${stamps.length} estampilles sur la photo`;
+            box.appendChild(h);
+
+            stamps.forEach((st, i) => {
+                const clickable = ['exact', 'multiple', 'near'].includes(st.status);
+                const row = document.createElement(clickable ? 'button' : 'div');
+                if (clickable) row.type = 'button';
+                row.className = 'w-full text-left bg-white border border-slate-200 rounded-xl px-2.5 py-2 flex items-center gap-2.5'
+                    + (clickable ? ' hover:border-blue-400 hover:bg-blue-50 transition active:scale-[0.99]' : '');
+
+                row.appendChild(stampIcon(st));
+                const text = document.createElement('div');
+                text.className = 'min-w-0 flex-1';
+                const code = document.createElement('div');
+                code.className = 'text-xs sm:text-sm font-semibold text-slate-800 font-mono';
+                code.textContent = st.code ? `${stampCountry(st)} ${shortCode(st.code)}` : `Estampille ${i + 1}`;
+                const status = document.createElement('div');
+                status.className = 'text-[11px] truncate ' + (st.status === 'exact' ? 'text-emerald-800' : 'text-slate-500');
+                status.textContent = stampStatusText(st);
+                text.append(code, status);
+                row.appendChild(text);
+
+                if (st.status === 'exact') {
+                    row.addEventListener('click', () => displayEstablishment(st.res.results[0], { fromScan: true, keepCandidates: true }));
+                } else if (clickable) {
+                    row.addEventListener('click', () => {
+                        lastScan.code = st.code;
+                        renderCandidates(st.res.results, {
+                            heading: st.status === 'multiple' ? `${st.res.total} établissements portent le numéro ${st.code} :`
+                                : (st.code.includes('?') ? `Lecture partielle (${st.code}). Est-ce l'un de ces établissements ?`
+                                : `${st.code} n'existe pas. Vouliez-vous dire :`),
+                            fromScan: true, reportLink: true, back: backToList
+                        });
+                    });
+                }
+                box.appendChild(row);
+            });
+
+            const link = document.createElement('button');
+            link.type = 'button';
+            link.className = 'text-xs text-blue-600 hover:underline font-medium px-1';
+            link.textContent = "Une estampille mal lue ? Envoyer la photo à l'auteur";
+            link.addEventListener('click', () => {
+                if (lastScan) lastScan.reason = 'plusieurs estampilles';
+                openContact({ kind: 'scan', withScan: true });
+            });
+            box.appendChild(link);
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'start' });
+        }
+
+        // Encart après une photo non lue
+        function showScanReport(reason) {
+            if (!lastScan) return;
+            lastScan.reason = reason;
+            const code = lastScan.code || '';
+            const texts = {
+                unread:    ["Numéro illisible sur cette photo.", "Cadrez l'ovale de plus près, net et bien éclairé."],
+                uncertain: [`Lecture incertaine : « ${code} ».`, "Corrigez le numéro dans le champ de recherche, ou reprenez la photo."],
+                notfound:  [`Le numéro lu, ${code}, n'existe pas dans la liste officielle.`, "Comparez-le à l'emballage et corrigez-le dans le champ de recherche."],
+                image:     ["Cette image ne peut pas être ouverte.", "Essayez avec une photo au format JPEG ou PNG."],
+                error:     ["La lecture de la photo a échoué.", "Réessayez dans un instant."]
+            };
+            const [title, hint] = texts[reason] || texts.error;
+            document.getElementById('scan-report-title').textContent = title;
+            document.getElementById('scan-report-hint').textContent = hint;
+
+            const thumb = document.getElementById('scan-report-thumb');
+            thumb.classList.toggle('hidden', !lastScan.image);
+            thumb.src = lastScan.image || '';
+            document.getElementById('scan-report-send-label').textContent =
+                lastScan.image ? "Envoyer la photo à l'auteur" : "Signaler à l'auteur";
+
+            const box = document.getElementById('scan-report-box');
+            box.classList.remove('hidden');
+            refreshIcons();
+            box.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'nearest' });
+        }
+
+        function hideScanReport() {
+            document.getElementById('scan-report-box').classList.add('hidden');
+        }
+
+        // Détails techniques joints au signalement (visibles par l'utilisateur avant envoi)
+        function buildDiagnostic() {
+            const meta = readDbMeta() || {};
+            const scan = lastScan || {};
+            return {
+                appli: APP_VERSION,
+                date: new Date().toISOString(),
+                motif: scan.reason || 'signalement manuel',
+                codeLu: scan.code || null,
+                rechercheDansLaListe: scan.lookupMode || null,
+                dureeMs: scan.ms ?? null,
+                erreur: scan.error || null,
+                ocr: scan.diag || null,
+                estampilles: scan.stamps || null,
+                image: scan.imageInfo || null,
+                liste: {
+                    source: meta.source || null,
+                    etablissements: frRecords.length,
+                    etablissementsIT: itRecords.length,
+                    chargeeLe: meta.time ? new Date(meta.time).toISOString() : null
+                },
+                navigateur: navigator.userAgent,
+                langue: navigator.language,
+                enLigne: navigator.onLine,
+                ecran: `${screen.width}x${screen.height} @${window.devicePixelRatio || 1}`,
+                appliInstallee: !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+            };
+        }
+        // === SCAN (fin) ===
+
+        // === CONTACT (début) ===
+        let contact = { kind: 'contact', photos: [], diagnostic: null, id: '' };
+
+        function newRequestId() {
+            if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+        }
+
+        function setContactStatus(text, type = '') {
+            const el = document.getElementById('contact-status');
+            el.textContent = text;
+            el.className = 'text-xs sm:text-sm rounded-xl p-2.5 ' + (type === 'error'
+                ? 'bg-red-50 text-red-800 border border-red-200'
+                : 'bg-emerald-50 text-emerald-800 border border-emerald-200');
+            el.classList.toggle('hidden', !text);
+        }
+
+        function renderContactAttachments() {
+            const wrap = document.getElementById('contact-attachments');
+            wrap.innerHTML = '';
+            contact.photos.forEach((dataUrl, i) => {
+                const item = document.createElement('div');
+                item.className = 'relative';
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = `Photo jointe ${i + 1}`;
+                img.className = 'w-16 h-16 rounded-lg object-cover border border-slate-200';
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-900 text-white text-xs leading-none flex items-center justify-center';
+                del.setAttribute('aria-label', `Retirer la photo ${i + 1}`);
+                del.textContent = '×';
+                del.addEventListener('click', () => { contact.photos.splice(i, 1); renderContactAttachments(); });
+                item.append(img, del);
+                wrap.appendChild(item);
+            });
+            document.getElementById('contact-add-photo').classList.toggle('hidden', contact.photos.length >= CONTACT_MAX_PHOTOS);
+        }
+
+        // kind : 'contact' (depuis « À propos ») ou 'scan' (photo non lue, avec photo et détails)
+        function openContact({ kind = 'contact', withScan = false } = {}) {
+            const scan = withScan && lastScan;
+            contact = {
+                kind,
+                photos: scan && lastScan.image ? [lastScan.image] : [],
+                diagnostic: scan ? buildDiagnostic() : null,
+                id: newRequestId()
+            };
+
+            document.getElementById('contact-modal-title').textContent =
+                kind === 'scan' ? "Signaler une photo non lue" : "Contacter l'auteur";
+            document.getElementById('contact-intro').textContent = kind === 'scan'
+                ? "La photo et les détails techniques aident l'auteur à améliorer la lecture. Un mot est le bienvenu, par exemple le numéro inscrit sur l'emballage."
+                : "Votre message arrive par e-mail chez l'auteur. Laissez votre adresse si vous souhaitez une réponse.";
+            const msg = document.getElementById('contact-message');
+            msg.value = '';
+            msg.placeholder = kind === 'scan' ? "Facultatif : produit, marque, numéro réel…" : "Votre message";
+
+            const diagBlock = document.getElementById('contact-diag-block');
+            diagBlock.classList.toggle('hidden', !contact.diagnostic);
+            document.getElementById('contact-diag-check').checked = true;
+            document.getElementById('contact-diag-preview').textContent =
+                contact.diagnostic ? JSON.stringify(contact.diagnostic, null, 2) : '';
+
+            document.getElementById('contact-fields').classList.remove('hidden');
+            document.getElementById('btn-send-contact').classList.remove('hidden');
+            document.getElementById('btn-send-contact').disabled = false;
+            document.getElementById('btn-send-contact').textContent = 'Envoyer';
+            document.getElementById('btn-cancel-contact').textContent = 'Annuler';
+            document.getElementById('contact-website').value = '';
+            setContactStatus('');
+            renderContactAttachments();
+            refreshIcons();
+
+            showModal('contact-modal', { focus: kind === 'scan' ? document.getElementById('btn-close-contact') : msg });
+        }
+
+        async function addContactPhotos(files) {
+            for (const file of files) {
+                if (contact.photos.length >= CONTACT_MAX_PHOTOS) break;
+                try {
+                    const { dataUrl } = await resizeImage(await readFileAsDataUrl(file), 1600, 0.85);
+                    contact.photos.push(dataUrl);
+                } catch (e) {
+                    setContactStatus(`« ${file.name} » ne peut pas être ouverte.`, 'error');
+                }
+            }
+            renderContactAttachments();
+        }
+
+        async function sendContact(e) {
+            e.preventDefault();
+            const message = document.getElementById('contact-message').value.trim();
+            const emailInput = document.getElementById('contact-email');
+            const email = emailInput.value.trim();
+
+            if (email && !emailInput.checkValidity()) {
+                setContactStatus("Adresse e-mail invalide.", 'error');
+                emailInput.focus();
+                return;
+            }
+            if (contact.kind === 'contact' && !message && contact.photos.length === 0) {
+                setContactStatus("Écrivez un message ou joignez une photo.", 'error');
+                document.getElementById('contact-message').focus();
+                return;
+            }
+            if (navigator.onLine === false) {
+                setContactStatus("Hors ligne : le message n'est pas parti. Réessayez une fois connecté.", 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-send-contact');
+            btn.disabled = true;
+            btn.textContent = 'Envoi…';
+            setContactStatus('');
+
+            const withDiag = contact.diagnostic && document.getElementById('contact-diag-check').checked;
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 45000);
+            try {
+                const resp = await fetch(CONTACT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: contact.id,
+                        kind: contact.kind,
+                        message,
+                        email,
+                        images: contact.photos,
+                        diagnostic: withDiag ? contact.diagnostic : null,
+                        website: document.getElementById('contact-website').value
+                    }),
+                    signal: controller.signal
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+
+                document.getElementById('contact-fields').classList.add('hidden');
+                btn.classList.add('hidden');
+                document.getElementById('btn-cancel-contact').textContent = 'Fermer';
+                setContactStatus(email ? "Message envoyé. Merci, l'auteur vous répondra par e-mail." : "Message envoyé. Merci !");
+                document.getElementById('btn-cancel-contact').focus();
+                if (contact.kind === 'scan') hideScanReport();
+            } catch (err) {
+                const detail = err.name === 'AbortError' ? "pas de réponse du serveur" : err.message;
+                setContactStatus(`Le message n'est pas parti (${detail}). Réessayez dans un instant.`, 'error');
+            } finally {
+                clearTimeout(timer);
+                btn.disabled = false;
+                if (!btn.classList.contains('hidden')) btn.textContent = 'Envoyer';
+            }
+        }
+        // === CONTACT (fin) ===
+
+        // === MODALES (début) ===
+        // Une seule modale ouverte à la fois. À l'ouverture : le reste de la page devient inerte
+        // (ni clic, ni tabulation, ni lecteur d'écran), le focus va dans la modale et une entrée
+        // est ajoutée à l'historique pour que le bouton retour du mobile la ferme.
+        // À la fermeture : tout est rétabli et le focus revient sur le bouton d'origine.
+        let openModal = null; // { id, returnFocus, onClose }
+
+        function setPageInert(on) {
+            document.querySelectorAll('body > header, body > main, body > footer').forEach(el => {
+                if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert');
+            });
+        }
+
+        function showModal(id, { focus, onClose } = {}) {
+            let returnFocus = document.activeElement;
+            const replacing = !!openModal;
+            if (replacing) {
+                // Passage d'une modale à une autre : une seule entrée d'historique, et le focus
+                // reviendra au final sur le bouton de la page qui a ouvert la première
+                returnFocus = openModal.returnFocus;
+                closeModal(openModal.id, true);
+            }
+            const modal = document.getElementById(id);
+            openModal = { id, returnFocus, onClose };
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setPageInert(true);
+            if (replacing) history.replaceState({ modal: id }, ''); else history.pushState({ modal: id }, '');
+            (focus || modal.querySelector('button')).focus();
+        }
+
+        function closeModal(id, fromPopState = false) {
+            const modal = document.getElementById(id);
+            if (!openModal || openModal.id !== id || modal.classList.contains('hidden')) return;
+            const { returnFocus, onClose } = openModal;
+            openModal = null;
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+            setPageInert(false);
+            if (onClose) onClose();
+            if (returnFocus && document.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
+            if (!fromPopState && history.state && history.state.modal === id) history.back();
+        }
+
+        // Ferme si le clic tombe sur le fond assombri, pas sur le contenu
+        function closeOnBackdropClick(id) {
+            const modal = document.getElementById(id);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(id); });
+        }
+        // === MODALES (fin) ===
+
+        // Modale satellite
+        function openSatelliteModal() {
+            if (!currentEtab) return;
+
+            const modalTitle = document.getElementById('modal-title-etab');
+            const modalSubtitle = document.getElementById('modal-subtitle-addr');
+            const extMapsBtn = document.getElementById('modal-btn-ext-maps');
+            const mapIframe = document.getElementById('modal-map-iframe');
+
+            const fullAddress = fullAddressOf(currentEtab);
+            const targetQuery = `${currentEtab.raisonSociale || ''} ${fullAddress}`.trim();
+
+            modalTitle.textContent = currentEtab.raisonSociale || 'Établissement Agréé';
+            modalSubtitle.textContent = fullAddress || (currentEtab.pays === 'IT' ? 'Italie' : 'France');
+            extMapsBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetQuery)}`;
+
+            // Google Maps Satellite Embed natif (t=k pour satellite, z=18 pour zoom usine)
+            mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(targetQuery)}&t=k&z=18&output=embed`;
+
+            showModal('satellite-modal', {
+                focus: document.getElementById('btn-close-satellite-modal'),
+                onClose: () => { mapIframe.src = 'about:blank'; }
+            });
+        }
+
+        function closeSatelliteModal() { closeModal('satellite-modal'); }
+
+        // Modale « À propos »
+        function openAboutModal() {
+            showModal('about-modal', { focus: document.getElementById('btn-close-about-modal') });
+        }
+        function closeAboutModal() { closeModal('about-modal'); }
+
+        // Initialisation des écouteurs
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshIcons();
+            if (SPONSOR_URL) {
+                document.getElementById('sponsor-link').href = SPONSOR_URL;
+                document.getElementById('sponsor-block').classList.remove('hidden');
+            }
+            loadOfficialDatabase();
+            loadItalianList();
+
+            const cameraInput = document.getElementById('camera-input');
+            const fileInput = document.getElementById('file-input');
+
+            // value = '' permet de reprendre la même photo juste après
+            [cameraInput, fileInput].forEach(input => input.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                e.target.value = '';
+                if (file) handleImageFile(file);
+            }));
+
+            // Encart « photo non lue »
+            document.getElementById('scan-report-send').addEventListener('click', () => openContact({ kind: 'scan', withScan: true }));
+            document.getElementById('scan-report-retry').addEventListener('click', () => cameraInput.click());
+            document.getElementById('scan-report-close').addEventListener('click', hideScanReport);
+            document.getElementById('res-scan-report').addEventListener('click', () => {
+                if (lastScan) lastScan.reason = 'mauvais établissement';
+                openContact({ kind: 'scan', withScan: true });
+            });
+
+            // Modale de contact
+            document.getElementById('btn-open-contact').addEventListener('click', () => openContact({ kind: 'contact' }));
+            document.getElementById('contact-form').addEventListener('submit', sendContact);
+            document.getElementById('btn-close-contact').addEventListener('click', () => closeModal('contact-modal'));
+            document.getElementById('btn-cancel-contact').addEventListener('click', () => closeModal('contact-modal'));
+            document.getElementById('contact-file-input').addEventListener('change', (e) => {
+                const files = [...(e.target.files || [])];
+                e.target.value = '';
+                addContactPhotos(files);
+            });
+            closeOnBackdropClick('contact-modal');
+
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('manual-code-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearBtn.classList.add('hidden');
+                searchInput.focus();
+            });
+
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const q = searchInput.value.trim();
+                if (!q) return;
+
+                showLookupResult(lookupEstablishment(q), q, 'manual');
+            });
+
+            // Modale Satellite
+            document.getElementById('btn-open-satellite-modal').addEventListener('click', openSatelliteModal);
+            document.getElementById('btn-close-satellite-modal').addEventListener('click', closeSatelliteModal);
+
+            // Modale À propos
+            document.getElementById('btn-open-about-modal').addEventListener('click', openAboutModal);
+            document.getElementById('btn-close-about-modal').addEventListener('click', closeAboutModal);
+            document.getElementById('btn-close-about-modal-footer').addEventListener('click', closeAboutModal);
+            closeOnBackdropClick('about-modal');
+
+            // Gestion du bouton retour arrière (popstate) pour les modales
+            window.addEventListener('popstate', () => {
+                if (openModal) closeModal(openModal.id, true);
+            });
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && openModal) {
+                    e.preventDefault();
+                    closeModal(openModal.id);
+                }
+            });
+        });
+    </script>
+
+    <!-- Cloudflare Web Analytics (sans cookie) -->
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "21b57369fb1845f2ac43fcf7a08ee389"}'></script>
+    <!-- End Cloudflare Web Analytics -->
+</body>
+</html>
