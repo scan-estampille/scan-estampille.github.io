@@ -16,8 +16,13 @@
     const SOURCE = 'fr';
     const CACHE_VERSION = 1;              // à changer pour oublier les traductions gardées dans le navigateur
     const STORE_KEY = 'langue';
-    const BATCH_STRINGS = 40;             // limites d'une requête (le relais refuse au-delà de 60 / 8000)
-    const BATCH_CHARS = 6000;
+    // Petites requêtes envoyées en parallèle : chacune revient vite, et les premiers textes de la page
+    // (en-tête, écran principal) sont demandés en premier. Le relais refuse au-delà de 60 textes / 8000 caractères.
+    const BATCH_STRINGS = 12;
+    const BATCH_CHARS = 1800;
+    const MAX_PARALLEL = 4;
+    const RETRY_DELAY_MS = 2000;          // texte mal traduit (balises perdues…) : un nouvel essai, seul
+    const NETWORK_RETRY_MS = 20000;       // relais injoignable ou saturé
     const ENDPOINT = (document.currentScript && document.currentScript.dataset.endpoint) || '';
 
     // Noms des langues dans leur propre langue, triés comme dans les menus habituels
@@ -44,6 +49,9 @@
     const pending = new Set();            // textes à demander au relais
     const inflight = new Set();
     const failed = new Set();             // échecs de cette session : on ne redemande pas en boucle
+    const retried = new Set();            // textes déjà réessayés une fois
+    const queue = [];                     // lots en attente d'envoi
+    let active = 0;
     let flushTimer = null, saveTimer = null, renderQueued = false;
 
     // État d'origine des nœuds traduits
@@ -315,21 +323,29 @@
     function flush() {
         flushTimer = null;
         if (!pending.size || lang === SOURCE || !ENDPOINT) { pending.clear(); return; }
-        const all = [...pending];
+        const all = [...pending];   // dans l'ordre de la page : le haut d'abord
         pending.clear();
         let batch = [], chars = 0;
-        const batches = [];
         for (const s of all) {
-            if (batch.length && (batch.length >= BATCH_STRINGS || chars + s.length > BATCH_CHARS)) { batches.push(batch); batch = []; chars = 0; }
+            if (batch.length && (batch.length >= BATCH_STRINGS || chars + s.length > BATCH_CHARS)) { queue.push({ strings: batch, lang }); batch = []; chars = 0; }
             batch.push(s); chars += s.length;
+            inflight.add(s);
         }
-        if (batch.length) batches.push(batch);
-        batches.forEach(b => request(b, lang));
+        if (batch.length) queue.push({ strings: batch, lang });
+        pump();
+    }
+
+    function pump() {
+        while (active < MAX_PARALLEL && queue.length) {
+            const job = queue.shift();
+            if (job.lang !== lang) { job.strings.forEach(s => inflight.delete(s)); continue; }
+            active++;
+            request(job.strings, job.lang).finally(() => { active--; pump(); });
+        }
+        setBusy(active > 0 || queue.length > 0);
     }
 
     async function request(strings, forLang) {
-        strings.forEach(s => inflight.add(s));
-        setBusy(true);
         try {
             const resp = await fetch(ENDPOINT, {
                 method: 'POST',
@@ -337,22 +353,28 @@
                 body: JSON.stringify({ lang: forLang, strings })
             });
             const data = await resp.json().catch(() => ({}));
-            if (!resp.ok || !Array.isArray(data.translations)) throw new Error(data.error || `HTTP ${resp.status}`);
+            if (!resp.ok && !Array.isArray(data.translations)) throw new Error(data.error || `HTTP ${resp.status}`);
             if (forLang !== lang) return; // langue changée entre-temps
+            const retry = [];
             strings.forEach((s, i) => {
-                const t = data.translations[i];
-                if (typeof t === 'string' && t.trim() && sameTags(s, t)) cache.set(s, t);
-                else failed.add(s);
+                const t = Array.isArray(data.translations) ? data.translations[i] : null;
+                if (typeof t === 'string' && t.trim() && sameTags(s, t)) { cache.set(s, t); return; }
+                failed.add(s);
+                if (!retried.has(s)) { retried.add(s); retry.push(s); }
             });
             saveCacheSoon();
+            // Textes non traduits dans ce lot : un seul nouvel essai, un peu plus tard
+            if (retry.length) setTimeout(() => {
+                if (lang !== forLang) return;
+                retry.forEach(s => failed.delete(s));
+                queueRender();
+            }, RETRY_DELAY_MS);
         } catch (e) {
             console.warn('Traduction indisponible :', e.message);
             strings.forEach(s => failed.add(s));
-            // Nouvel essai possible dans une minute (relais saturé, réseau coupé…)
-            setTimeout(() => { strings.forEach(s => failed.delete(s)); if (lang === forLang) queueRender(); }, 60000);
+            setTimeout(() => { strings.forEach(s => failed.delete(s)); if (lang === forLang) queueRender(); }, NETWORK_RETRY_MS);
         } finally {
             strings.forEach(s => inflight.delete(s));
-            setBusy(inflight.size > 0);
             if (forLang === lang) queueRender();
         }
     }
@@ -373,6 +395,8 @@
         cache = code === SOURCE ? new Map() : loadCache(code);
         pending.clear();
         failed.clear();
+        retried.clear();
+        queue.length = 0;
         document.documentElement.lang = code;
         startObserver();
         applyAll();
