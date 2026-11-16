@@ -1,7 +1,7 @@
 // Service worker de l'application Estampille Sanitaire CE.
 // À CHAQUE mise en ligne, changer VERSION (et APP_VERSION dans index.html, avec la même valeur).
-// Ces deux lignes sont aussi réécrites automatiquement par le workflow GitHub « Mise à jour liste Italie ».
-const VERSION = '2026-11-13g';
+// Ces deux lignes sont aussi réécrites automatiquement par les workflows de mise à jour des listes.
+const VERSION = '2026-11-16a';
 
 const CACHE = `estampille-${VERSION}`;
 
@@ -17,6 +17,8 @@ const PRECACHE = [
   './ETAB_AGR_853.txt',
   './ETAB_AGR_IT.txt',
   './ETAB_AGR_IT.meta.json',
+  './ETAB_AGR_DE.txt',
+  './ETAB_AGR_DE.meta.json',
   './icons/favicon.svg',
   './icons/favicon-32.png',
   './icons/apple-touch-icon.png'
