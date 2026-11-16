@@ -3,7 +3,9 @@
 (même format que la liste DGAL) : dept, numAgrement, siret, raisonSociale, adresse, codePostal,
 commune, categorie, activites, especes.
 
-Le fichier d'entrée est l'export « CSV » de la Generalliste du site du BVL (séparateur : tabulation).
+Le fichier d'entrée est l'export « CSV » de la Generalliste du site du BVL (point-virgule, Windows-1252).
+Une 11e colonne, propre à l'Allemagne, donne les anciens numéros d'agrément (« EV 123, BY 111 ») :
+ils figurent encore sur des emballages, et ~1 200 établissements n'ont que ceux-là.
 Il est téléchargé par scripts/fetch_de.py.
 
 Usage :
@@ -30,15 +32,17 @@ ACTIVITY_COLUMNS = [
     ("GHE", "IV"), ("CP", "IV"),
     ("MM", "V"), ("MP", "V"), ("MSM", "V"),
     ("PP", "VI"),
-    ("CC", None), ("PP", None),
-    ("CC", None), ("PP", None),
-    ("CC", None), ("PP", None),
-    ("CC", None), ("PP", None),
+    # Sections déduites des établissements de l'export du 16/11/2026 : charcuteries (graisses fondues),
+    # boyauderies (estomacs, vessies, boyaux), fabricants de gélatine et de collagène, laiteries
+    ("CC", "XII"), ("PP", "XII"),
+    ("CC", "XIII"), ("PP", "XIII"),
+    ("CC", "XIV"), ("PP", "XIV"),
+    ("CC", "XV"), ("PP", "XV"),
     ("CC", "IX"), ("PP", "IX"),
     ("EPC", "X"), ("LEP", "X"), ("PP", "X"),
     ("AH", "VIII"), ("FV", "VIII"), ("ZV", "VIII"), ("FFPP", "VIII"), ("PP", "VIII"), ("WM", "VIII"),
     ("PC", "VII"), ("DC", "VII"),
-    ("PP", None),
+    ("PP", None),          # vide dans l'export : section inconnue
 ]
 # Codes espèces reconnus par l'appli (cellules du type « B, O, P » ou « wU, wG »)
 SPECIES = {"B", "C", "O", "P", "S", "A", "L", "R", "fG", "wU", "wA", "wL", "wG", "F", "SN"}
@@ -49,6 +53,8 @@ def clean(t):
 
 
 def decode(raw: bytes) -> str:
+    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return raw.decode("utf-16")
     for enc in ("utf-8-sig", "cp1252"):
         try:
             return raw.decode(enc)
@@ -57,42 +63,107 @@ def decode(raw: bytes) -> str:
     return raw.decode("latin-1")
 
 
+def header_name(cell):
+    return clean(cell).strip('"').lstrip("#").strip()
+
+
+def sniff_delimiter(text):
+    """Séparateur de l'export (tabulation, point-virgule ou virgule), deviné sur la ligne d'en-tête."""
+    for line in text.splitlines():
+        if "bundesland" in line.lower():
+            return max(["\t", ";", ",", "|"], key=line.count)
+    return "\t"
+
+
 def find_header(rows):
     for i, row in enumerate(rows):
-        if row and clean(row[0]).lstrip("#").strip().lower().startswith("bundesland"):
-            return i, [clean(c) for c in row]
-    sys.exit("En-tête « Bundesland » introuvable : le format de l'export a changé.")
+        if row and header_name(row[0]).lower().startswith("bundesland"):
+            return i, [header_name(c) for c in row]
+    return None, None
+
+
+def fail(msg, text):
+    # Le début du fichier, tel quel, aide à comprendre ce qui a changé
+    preview = "\n".join(repr(l[:300]) for l in text.splitlines()[:3])
+    sys.exit(f"{msg}\nDébut du fichier :\n{preview}")
+
+
+def old_numbers(cell):
+    """« EV 123, BY 111, BY 111 » → ['EV 123', 'BY 111'] (sans doublons, dans l'ordre)."""
+    out = []
+    for o in re.split(r"\s*[,;]\s*|\s+und\s+", cell or ""):
+        o = clean(o).upper()
+        if o and re.search(r"\d", o) and o not in out:
+            out.append(o)
+    return out
+
+
+NEW_NUM = re.compile(r"^(%s)[\s\-]*\d{5}$" % "|".join(sorted(LAENDER)))
+
+
+def realign(row, width, i_name, i_street, i_town, i_num):
+    """Ligne avec un « ; » de trop (dans le nom, l'adresse ou la ville) : on recolle les morceaux
+    pour que le numéro retombe dans sa colonne. Les lignes déjà alignées ne changent pas."""
+    extra = len(row) - width
+    if extra <= 0 or NEW_NUM.match(clean(row[i_num]).upper()):
+        return row
+    for e in range(1, extra + 1):
+        for p in (i_town, i_name, i_street):
+            merged = row[:p] + [", ".join(c.strip() for c in row[p:p + e + 1] if c.strip())] + row[p + e + 1:]
+            if NEW_NUM.match(clean(merged[i_num]).upper()) and re.match(r"^\d{5}\s", clean(merged[i_town])):
+                return merged
+    return row
+
+
+def column(header, test):
+    for i, name in enumerate(header):
+        if test(name.lower()):
+            return i
+    return None
 
 
 def parse(text):
-    rows = list(csv.reader(io.StringIO(text), delimiter="\t", quoting=csv.QUOTE_NONE))
+    delim = sniff_delimiter(text)
+    rows = list(csv.reader(io.StringIO(text), delimiter=delim))
     h, header = find_header(rows)
-    try:
-        first = header.index("CS")
-    except ValueError:
-        sys.exit("Colonne « CS » introuvable : le format de l'export a changé.")
-    codes = header[first:first + len(ACTIVITY_COLUMNS)]
+    if header is None:
+        fail("En-tête « Bundesland » introuvable : le format de l'export a changé.", text)
+    print(f"Séparateur : {delim!r}, {len(header)} colonnes, {len(rows) - h - 1} lignes")
+
+    # Code d'activité de chaque colonne : « CS », ou le premier mot de « CS (Kühlhaus) »…
+    codes_all = [(re.match(r"^([A-Z]{2,4})\b", n) or [None, None])[1] for n in header]
     expected = [c for c, _ in ACTIVITY_COLUMNS]
-    if codes != expected:
-        sys.exit(f"Colonnes d'activité inattendues :\n  lues    {codes}\n  prévues {expected}")
-    col = {name: i for i, name in enumerate(header) if name}
+    first = next((i for i in range(len(header)) if codes_all[i:i + len(expected)] == expected), None)
+    if first is None:
+        fail("Colonnes d'activité introuvables ou dans un autre ordre :\n  en-tête "
+             f"{header}\n  prévues  {expected}", text)
+
     i_land = 0
-    i_name = next(i for i, n in enumerate(header) if n.lower().startswith("name"))
-    i_street = next(i for i, n in enumerate(header) if n.lower().startswith("straße") or n.lower().startswith("strasse"))
-    i_town = next(i for i, n in enumerate(header) if n.lower() == "ort")
-    i_num = next(i for i, n in enumerate(header) if n.lower().startswith("neue zulassungsnummer"))
-    i_notes = col.get("Bemerkungen")
+    i_name = column(header, lambda n: n.startswith("name"))
+    i_street = column(header, lambda n: "straße" in n or "strasse" in n)
+    i_town = column(header, lambda n: n == "ort" or n.endswith(" ort") or n.startswith("plz"))
+    i_num = column(header, lambda n: "zulassungsnummer" in n and "alte" not in n and "eier" not in n)
+    i_notes = column(header, lambda n: n.startswith("bemerkung"))
+    if None in (i_name, i_street, i_town, i_num):
+        fail(f"Colonnes de base introuvables dans l'en-tête : {header}", text)
+
+    i_old = column(header, lambda n: n.startswith("alte zulassung"))
 
     records, seen = [], set()
     for row in rows[h + 1:]:
+        row = realign(row, len(header), i_name, i_street, i_town, i_num)
         if len(row) <= i_num:
-            continue
+            continue                      # suite d'une remarque coupée par un retour à la ligne
         get = lambda i: clean(row[i]) if i is not None and i < len(row) else ""
+        olds = old_numbers(get(i_old))
         num = get(i_num).upper()
         m = re.match(r"^([A-Z]{2})[\s\-]*(\d{5})$", num)
-        if not m or m.group(1) not in LAENDER:
-            continue                      # ligne vide ou numéro hors format (anciens numéros seuls)
-        num = f"{m.group(1)} {m.group(2)}"
+        if m and m.group(1) in LAENDER:
+            num = f"{m.group(1)} {m.group(2)}"
+        elif olds:
+            num = olds.pop(0)             # établissement qui n'a qu'un ancien numéro
+        else:
+            continue                      # ligne vide
 
         town = get(i_town)
         mt = re.match(r"^(\d{5})\s+(.*)$", town)
@@ -118,7 +189,8 @@ def parse(text):
             continue
         seen.add(key)
         records.append({"land": get(i_land), "num": num, "name": name, "street": street,
-                        "cp": cp, "commune": commune, "acts": acts, "sp": species})
+                        "cp": cp, "commune": commune, "acts": acts, "sp": species,
+                        "old": [o for o in olds if o != num]})
     return records
 
 
@@ -154,7 +226,8 @@ def main():
         w = csv.writer(f, quoting=csv.QUOTE_ALL, lineterminator="\n")
         for r in records:
             w.writerow([q(r["land"]), q(r["num"]), "", q(r["name"]), q(r["street"]),
-                        q(r["cp"]), q(r["commune"]), "", "; ".join(r["acts"]), "-".join(r["sp"])])
+                        q(r["cp"]), q(r["commune"]), "", "; ".join(r["acts"]), "-".join(r["sp"]),
+                        q(", ".join(r["old"]))])
 
     # Le BVL ne date pas son export : on note le jour du téléchargement
     today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
