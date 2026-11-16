@@ -62,13 +62,18 @@ def pass_gate(page):
     for _ in range(3):
         if not page.get_by_text(re.compile(r"JavaScript.{0,40}nicht aktiviert", re.I)).count():
             return
-        button = page.locator("input[type=submit], input[type=button], button, a[href]").filter(visible=True)
+        # Bouton « Weiter ohne JavaScript » (id osForm:button) ; sinon le premier bouton du formulaire
+        button = page.locator("[id='osForm:button']")
+        if not button.count():
+            button = page.locator("form input[type=submit], form button")
         if not button.count():
             raise RuntimeError("page « JavaScript nicht aktiviert » sans bouton")
-        print(f"Page d'entrée : clic sur « {(button.first.inner_text() or button.first.get_attribute('value') or '').strip()[:60]} »")
-        button.first.click()
-        page.wait_for_load_state("networkidle")
-        page.wait_for_timeout(2000)
+        print(f"Page d'entrée : clic sur « {(button.first.get_attribute('value') or button.first.inner_text() or '').strip()[:60]} »")
+        with page.expect_navigation(wait_until="networkidle"):
+            button.first.click()
+        page.wait_for_timeout(1000)
+    if page.get_by_text(re.compile(r"JavaScript.{0,40}nicht aktiviert", re.I)).count():
+        raise RuntimeError("la page d'entrée revient après 3 clics")
 
 
 def export_visible(page, timeout=STEP_TIMEOUT_MS):
