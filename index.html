@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estampille Sanitaire CE - Établissement agréé & Traçabilité</title>
+    <title>Scan Estampille Sanitaire - Établissement agréé & Traçabilité</title>
     <meta name="description" content="Lisez l'estampille sanitaire ovale (FR 00.000.000 CE, IT 0000 CE) d'un emballage alimentaire et trouvez l'établissement agréé qui l'a préparé, d'après les listes officielles de la DGAL (France) et du ministère de la Santé (Italie).">
     <meta name="robots" content="index, follow">
     <meta name="format-detection" content="telephone=no">
@@ -13,10 +13,10 @@
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#ffffff">
-    <meta name="application-name" content="Estampille CE">
+    <meta name="application-name" content="Scan Estampille">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Estampille CE">
+    <meta name="apple-mobile-web-app-title" content="Scan Estampille">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
@@ -25,8 +25,8 @@
     <!-- Open Graph / partage -->
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fr_FR">
-    <meta property="og:site_name" content="Estampille Sanitaire CE">
-    <meta property="og:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta property="og:site_name" content="Scan Estampille Sanitaire">
+    <meta property="og:title" content="Scan Estampille Sanitaire : qui a préparé ce produit ?">
     <meta property="og:description" content="Photographiez ou saisissez le numéro de l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé : nom, adresse, activités. Données officielles (France et Italie).">
     <meta property="og:url" content="https://scan-estampille.github.io/">
     <meta property="og:image" content="https://scan-estampille.github.io/icons/og-image.png">
@@ -34,14 +34,14 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Estampille ovale FRANCE 00.000.000 CE à côté du nom de l'application">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Estampille Sanitaire CE : qui a préparé ce produit ?">
+    <meta name="twitter:title" content="Scan Estampille Sanitaire : qui a préparé ce produit ?">
     <meta name="twitter:description" content="Lisez l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé, d'après les listes officielles (France et Italie).">
     <meta name="twitter:image" content="https://scan-estampille.github.io/icons/og-image.png">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "Estampille Sanitaire CE",
+        "name": "Scan Estampille Sanitaire",
         "url": "https://scan-estampille.github.io/",
         "description": "Identifie l'établissement agréé CE à partir du numéro de l'estampille sanitaire ovale, d'après les listes officielles de la DGAL (France) et du ministère de la Santé italien.",
         "applicationCategory": "UtilitiesApplication",
@@ -79,13 +79,21 @@
                     <i data-lucide="scan-line" class="w-3.5 h-3.5"></i>
                 </div>
                 <div class="flex items-baseline gap-2 truncate">
-                    <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Estampille Sanitaire CE</h1>
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Scan Estampille Sanitaire</h1>
                     <span class="text-xs text-slate-400 hidden sm:inline">•</span>
                     <p class="text-xs text-slate-500 truncate hidden sm:inline">Établissements agréés CE (France et Italie)</p>
                 </div>
             </div>
-            <div class="text-[11px] text-slate-400 shrink-0 font-medium">
-                Règlement (CE) 853/2004
+            <!-- Choix de la langue (traduction automatique, voir assets/traduction.js) -->
+            <div class="relative shrink-0">
+                <button type="button" id="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang-menu" aria-label="Choisir la langue" title="Langue" class="inline-flex items-center gap-1 p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                    <span id="lang-current" translate="no" class="text-[11px] font-semibold">FR</span>
+                </button>
+                <div id="lang-menu" class="hidden absolute right-0 top-full mt-1.5 w-56 max-h-[70vh] overflow-y-auto custom-scrollbar bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-40">
+                    <p class="px-3 pt-1 pb-1.5 text-[11px] text-slate-500 border-b border-slate-100">Traduction automatique par IA</p>
+                    <ul id="lang-list" role="listbox" aria-label="Langue" translate="no"></ul>
+                </div>
             </div>
         </div>
     </header>
@@ -96,8 +104,11 @@
         <!-- Barre de recherche manuelle & Actions Scanner -->
         <div class="bg-white p-3 sm:p-3.5 rounded-2xl shadow-sm border border-slate-200/85">
             <!-- Mini tuto : quoi photographier -->
-            <div class="flex items-center gap-3 mb-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100">
-                <svg class="w-[104px] h-[72px] shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille ovale FR 00.000.000 CE encadrée pour la photo">
+            <div class="mb-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100">
+                <h2 class="text-sm font-semibold text-slate-900 text-center leading-snug mb-2">Photographiez l'estampille sanitaire</h2>
+                <!-- Mobile : le texte passe sous le dessin quand il est plus long ; écran large : côte à côte, centrés -->
+                <div class="flow-root sm:flex sm:items-center sm:gap-3">
+                    <svg class="float-left w-[104px] h-[72px] mr-3 mb-1 sm:float-none sm:mr-0 sm:mb-0 sm:shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille ovale FR 00.000.000 CE encadrée pour la photo">
                     <!-- étiquette de l'emballage -->
                     <rect x="1" y="1" width="102" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
                     <rect x="8" y="10" width="20" height="4" rx="2" fill="#cbd5e1"/>
@@ -113,9 +124,7 @@
                     <!-- cadre de visée -->
                     <path d="M32 15v-3a4 4 0 0 1 4-4h4 M92 8h4a4 4 0 0 1 4 4v3 M100 57v3a4 4 0 0 1-4 4h-4 M40 64h-4a4 4 0 0 1-4-4v-3" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
-                <div class="min-w-0">
-                    <h2 class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">Photographiez l'estampille sanitaire</h2>
-                    <p class="text-[11px] sm:text-xs text-slate-600 leading-snug mt-0.5">C'est le petit ovale «&nbsp;FR&nbsp;00.000.000&nbsp;CE&nbsp;» (ou «&nbsp;IT&nbsp;…&nbsp;CE&nbsp;») imprimé sur les emballages de viande, poisson, fromage, œufs… souvent près de la date limite. Cadrez-le de près, net et bien éclairé.</p>
+                    <p class="text-[11px] sm:text-xs text-slate-600 leading-snug [text-wrap:pretty]">C'est le petit ovale <span class="whitespace-nowrap font-medium text-slate-800">«&nbsp;FR&nbsp;00.000.000&nbsp;CE&nbsp;»</span> imprimé sur les emballages de viande, poisson, fromage, œufs…, souvent près de la date limite. <span class="font-medium text-slate-800">Cadrez-le de près, net et bien éclairé.</span></p>
                 </div>
             </div>
 
@@ -210,23 +219,23 @@
                             </span>
                             <span id="res-dept-badge" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-white/10 text-slate-200">Dép. --</span>
                         </div>
-                        <h2 id="res-raison-sociale" tabindex="-1" class="focus:outline-none text-base sm:text-lg font-bold tracking-tight text-white leading-tight">--</h2>
+                        <h2 id="res-raison-sociale" translate="no" tabindex="-1" class="focus:outline-none text-base sm:text-lg font-bold tracking-tight text-white leading-tight">--</h2>
                         <p id="res-commune-header" class="text-xs text-slate-300 flex items-center gap-1.5">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i> <span id="res-header-city">--</span>
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i> <span id="res-header-city" translate="no">--</span>
                         </p>
                     </div>
 
                     <!-- Badge Ovale Officiel CE & SIRET (avec Pappers intégré pour la France) -->
                     <div class="shrink-0 flex items-center gap-2 sm:justify-end">
                         <div class="border-2 border-white/80 rounded-[50%] px-3 py-1 text-center bg-white/5 backdrop-blur-sm shadow-inner">
-                            <div id="res-oval-pays" class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">FRANCE</div>
-                            <div id="res-agrement-ovale" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
+                            <div id="res-oval-pays" translate="no" class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">FRANCE</div>
+                            <div id="res-agrement-ovale" translate="no" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
                             <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
                         </div>
                         <a id="btn-pappers" href="#" target="_blank" rel="noopener noreferrer" title="Fiche Entreprise (Pappers)" aria-label="Voir la fiche entreprise sur Pappers" class="group bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-white/40 px-2 py-1.5 rounded-xl text-left flex items-center gap-2 transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
                             <div>
                                 <span id="res-siret-label" class="text-[9px] uppercase font-semibold text-slate-300 tracking-wider block">SIRET</span>
-                                <span id="res-siret-header" class="font-mono text-xs font-bold text-slate-100">--</span>
+                                <span id="res-siret-header" translate="no" class="font-mono text-xs font-bold text-slate-100">--</span>
                             </div>
                             <span id="res-pappers-icon" class="p-1.5 rounded-lg bg-white/10 group-hover:bg-white/20 text-white transition shrink-0">
                                 <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
@@ -247,8 +256,8 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200/70">
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-0.5">Adresse de l'établissement</span>
-                            <p id="res-adresse" class="text-xs sm:text-sm font-semibold text-slate-800 truncate">--</p>
-                            <p id="res-cp-ville" class="text-[11px] sm:text-xs text-slate-600 font-medium">--</p>
+                            <p id="res-adresse" translate="no" class="text-xs sm:text-sm font-semibold text-slate-800 truncate">--</p>
+                            <p id="res-cp-ville" translate="no" class="text-[11px] sm:text-xs text-slate-600 font-medium">--</p>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
                             <!-- Bouton Itinéraire GPS épuré (Picto seul) -->
@@ -284,9 +293,11 @@
 
     <!-- Footer Dynamique -->
     <footer class="mt-2 py-2 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
-        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-2">
-            <span>Estampille Sanitaire CE</span>
-            <span>•</span>
+        <div class="max-w-4xl mx-auto px-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
+            <span translate="no">Scan Estampille</span>
+            <span aria-hidden="true">•</span>
+            <span>Règlement (CE) 853/2004</span>
+            <span aria-hidden="true">•</span>
             <button type="button" id="btn-open-about-modal" class="text-blue-600 hover:underline font-medium">À propos</button>
         </div>
     </footer>
@@ -300,8 +311,8 @@
                     <i data-lucide="satellite" class="w-4 h-4"></i>
                 </div>
                 <div class="min-w-0">
-                    <h3 id="modal-title-etab" class="text-sm font-bold truncate">Vue satellite de l'établissement</h3>
-                    <p id="modal-subtitle-addr" class="text-xs text-slate-400 truncate">Localisation Google Maps...</p>
+                    <h3 id="modal-title-etab" translate="no" class="text-sm font-bold truncate">Vue satellite de l'établissement</h3>
+                    <p id="modal-subtitle-addr" translate="no" class="text-xs text-slate-400 truncate">Localisation Google Maps...</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
@@ -335,37 +346,57 @@
                 </button>
             </div>
             
-            <div class="space-y-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-1">Sources officielles</h4>
-                    <p><strong>France</strong> : fichier officiel des établissements agréés au titre du paquet hygiène (Règlement CE n°853/2004) publié par la <strong>Direction Générale de l'Alimentation (DGAL)</strong> du Ministère de l'Agriculture et de la Souveraineté alimentaire.</p>
-                    <p id="about-dgal-count" class="mt-1 font-medium text-blue-600">Établissements agréés référencés : chargement en cours...</p>
-                    <p class="mt-2"><strong>Italie</strong> : liste officielle des établissements reconnus publiée par le <strong>Ministero della Salute</strong> (Direzione generale per l'igiene e la sicurezza degli alimenti e la nutrizione). Elle est recopiée automatiquement une fois par mois sur ce site.</p>
-                    <p id="about-it-count" class="mt-1 font-medium text-blue-600">Italie : chargement en cours...</p>
-                </div>
-
+            <div class="space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
                 <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
                     <h4 class="font-semibold text-amber-900 mb-1">Comment lire le résultat</h4>
                     <p class="text-amber-900/90">L'estampille ovale identifie l'<strong>établissement agréé</strong> qui a préparé, transformé, conditionné ou stocké le produit en dernier. Ce n'est pas forcément le lieu de production des matières premières, ni le propriétaire de la marque : un même établissement peut fabriquer pour plusieurs marques. Figurer dans la liste ne constitue pas une garantie de conformité. Les données sont celles des fichiers officiels et peuvent être incomplètes ou en retard sur la réalité.</p>
                 </div>
 
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-1">Fonctionnement</h4>
-                    <p>Une IA de lecture d'image repère chaque estampille ovale de la photo et lit son numéro ; un ovale difficile est relu de près. L'application recherche ensuite chaque numéro dans la liste officielle du pays concerné (France ou Italie). <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
-                </div>
+                <details class="group rounded-xl border border-slate-200">
+                    <summary class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer select-none list-none font-semibold text-slate-800 rounded-xl hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                        <span>Sources officielles</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-3 pb-3 space-y-2.5">
+                        <div>
+                            <p><strong>France</strong> : <strong>Direction Générale de l'Alimentation (DGAL)</strong></p>
+                            <p id="about-dgal-count" class="font-medium text-blue-600">Chargement en cours…</p>
+                        </div>
+                        <div>
+                            <p><strong>Italie</strong> : <strong>Ministero della Salute</strong></p>
+                            <p id="about-it-count" class="font-medium text-blue-600">Chargement en cours…</p>
+                        </div>
+                    </div>
+                </details>
 
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-1">Confidentialité & données</h4>
-                    <ul class="list-disc pl-4 space-y-1">
-                        <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Groq, ou Cloudflare Workers AI en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
-                        <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
-                        <li><strong>Listes officielles</strong> : la liste française est téléchargée via le relais, la liste italienne est un fichier hébergé avec l'application. Toutes deux sont conservées dans le navigateur pour accélérer l'application.</li>
-                        <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
-                        <li><strong>Statistiques de fréquentation</strong> : mesure d'audience anonyme par Cloudflare Web Analytics, sans cookie ni identifiant enregistré sur votre appareil (pages vues, pays, type d'appareil). Ces statistiques servent uniquement à suivre l'utilisation de l'application.</li>
-                        <li><strong>Messages à l'auteur</strong> : votre message, votre adresse e-mail si vous la donnez, les photos jointes et les détails techniques passent par le relais (Cloudflare) et le service d'envoi Resend, puis arrivent par e-mail chez l'auteur. Ils servent uniquement à vous répondre et à améliorer l'application.</li>
-                        <li><strong>Services tiers</strong> : la vue satellite (Google Maps), le lien Pappers et le lien de don (Liberapay) ouvrent des services externes qui ont leur propre politique. Aucune donnée n'est transmise à Liberapay depuis l'application : c'est un simple lien.</li>
-                    </ul>
-                </div>
+                <details class="group rounded-xl border border-slate-200">
+                    <summary class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer select-none list-none font-semibold text-slate-800 rounded-xl hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                        <span>Fonctionnement</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-3 pb-3">
+                        <p>Une IA de lecture d'image repère chaque estampille ovale de la photo et lit son numéro. L'application recherche ensuite chaque numéro dans la liste officielle du pays concerné. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
+                    </div>
+                </details>
+
+                <details class="group rounded-xl border border-slate-200">
+                    <summary class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer select-none list-none font-semibold text-slate-800 rounded-xl hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                        <span>Confidentialité &amp; données</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <div class="px-3 pb-3">
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li><strong>Photos</strong> : réduites sur votre appareil, puis envoyées via un relais (Cloudflare) à un service d'IA qui lit le numéro : Groq, ou Cloudflare Workers AI en secours. L'application ne les enregistre pas ; leur traitement est soumis à la politique de confidentialité de ces services.</li>
+                            <li><strong>Recherches manuelles</strong> : effectuées dans votre navigateur, sans envoi de ce que vous tapez.</li>
+                            <li><strong>Listes officielles</strong> : téléchargées sans rien transmettre de vos recherches, puis conservées dans votre navigateur pour accélérer l'application.</li>
+                            <li><strong>Traduction</strong> : si vous choisissez une autre langue que le français, les textes de l'application sont traduits par le même service d'IA, via le relais. Vos recherches, les numéros lus et les données des établissements ne sont pas envoyés.</li>
+                            <li><strong>Journaux techniques</strong> : le relais peut enregistrer des informations techniques usuelles (adresse IP, date de la requête).</li>
+                            <li><strong>Statistiques de fréquentation</strong> : mesure d'audience anonyme par Cloudflare Web Analytics, sans cookie ni identifiant enregistré sur votre appareil (pages vues, pays, type d'appareil). Ces statistiques servent uniquement à suivre l'utilisation de l'application.</li>
+                            <li><strong>Messages à l'auteur</strong> : votre message, votre adresse e-mail si vous la donnez, les photos jointes et les détails techniques passent par le relais (Cloudflare) et le service d'envoi Resend, puis arrivent par e-mail chez l'auteur. Ils servent uniquement à vous répondre et à améliorer l'application.</li>
+                            <li><strong>Services tiers</strong> : la vue satellite (Google Maps), le lien Pappers et le lien de don (Liberapay) ouvrent des services externes qui ont leur propre politique. Aucune donnée n'est transmise à Liberapay depuis l'application : c'est un simple lien.</li>
+                        </ul>
+                    </div>
+                </details>
 
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <h4 class="font-semibold text-slate-800 mb-1">Une question, une erreur ?</h4>
@@ -445,7 +476,7 @@
                     </label>
                     <details class="mt-1">
                         <summary class="text-[11px] text-blue-600 cursor-pointer">Voir ce qui sera envoyé</summary>
-                        <pre id="contact-diag-preview" class="mt-1 p-2 text-[10px] leading-snug bg-slate-50 border border-slate-200 rounded-lg overflow-auto max-h-40 whitespace-pre-wrap break-all"></pre>
+                        <pre id="contact-diag-preview" translate="no" class="mt-1 p-2 text-[10px] leading-snug bg-slate-50 border border-slate-200 rounded-lg overflow-auto max-h-40 whitespace-pre-wrap break-all"></pre>
                     </details>
                 </div>
 
@@ -465,6 +496,7 @@
     </div>
 
     <!-- Script logique de l'application -->
+    <script src="assets/traduction.js" data-endpoint="https://estampille-ocr.outils-estampille.workers.dev/translate"></script>
     <script>
         // PWA : service worker (HTTPS ou localhost uniquement)
         if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
@@ -497,7 +529,7 @@
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements : identique à VERSION dans sw.js.
         // À changer à la main à chaque mise en ligne ; le workflow « Mise à jour liste Italie » réécrit les deux.
-        const APP_VERSION = "2026-11-13e";
+        const APP_VERSION = "2026-11-13f";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -564,6 +596,19 @@
                 .replace(/\s*CE$/i, '')
                 .replace(/[^0-9A-Z]/g, '')
                 .trim();
+        }
+
+        // Donnée insérée dans un texte (recherche tapée, numéro lu, nombre) : entourée des caractères
+        // invisibles U+2068 / U+2069, elle n'est jamais envoyée à la traduction (voir assets/traduction.js)
+        function data(value) {
+            return `\u2068${value}\u2069`;
+        }
+
+        // Valeur venant des listes officielles (nom, adresse…) : affichée telle quelle, jamais traduite.
+        // Le texte de remplacement (« Non communiqué »), lui, reste traduisible.
+        function setOfficialText(el, value, fallback) {
+            el.textContent = value || fallback;
+            el.setAttribute('translate', value ? 'no' : 'yes');
         }
 
         // Code court sans préfixe pays, pour l'affichage
@@ -679,18 +724,25 @@
             return parsedRecords;
         }
 
+        // « 13 828 établissements ; liste du 12/11/2026 » (+ précision éventuelle entre parenthèses)
+        function listStatusText(count, date, note = '') {
+            const n = data(count.toLocaleString('fr-FR'));
+            const d = date ? ` ; liste du ${data(new Date(date).toLocaleDateString('fr-FR'))}` : '';
+            return `${n} établissements${d}${note ? ` (${note})` : ''}`;
+        }
+
         function setDbStatusText(text, isError = false) {
             const el = document.getElementById('about-dgal-count');
             if (!el) return;
             el.textContent = text;
-            el.className = "mt-1 font-medium " + (isError ? "text-red-600" : "text-blue-600");
+            el.className = "font-medium " + (isError ? "text-red-600" : "text-blue-600");
         }
 
         function setItalyStatusText(text, isError = false) {
             const el = document.getElementById('about-it-count');
             if (!el) return;
             el.textContent = text;
-            el.className = "mt-1 font-medium " + (isError ? "text-red-600" : "text-blue-600");
+            el.className = "font-medium " + (isError ? "text-red-600" : "text-blue-600");
         }
 
         // Reconstruit l'index à partir des deux listes. Clé = « PAYS:code » (FR:64348100, IT:0100M)
@@ -708,14 +760,12 @@
             isDbLoaded = allRecordsList.length > 0;
         }
 
-        function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null, live = true) {
+        // listDate : date de la liste (en-tête Last-Modified de la source), à défaut date du téléchargement
+        function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null, live = true, listDate = null) {
             frRecords = records;
             rebuildIndex();
             dbLoadState = 'ready';
-
-            const when = !live ? ' · copie de secours, peut ne pas être à jour'
-                : (timestamp ? ` · liste chargée le ${new Date(timestamp).toLocaleDateString('fr-FR')}` : '');
-            setDbStatusText(`France : ${records.length.toLocaleString('fr-FR')} établissements (${sourceName}${when})`);
+            setDbStatusText(listStatusText(records.length, listDate || timestamp, live ? '' : 'copie de secours'));
         }
 
         function readDbMeta() {
@@ -737,6 +787,19 @@
             }
         }
 
+        // Comme fetchTextWithTimeout, avec la date de la liste (en-tête Last-Modified, exposé par le relais)
+        async function fetchListWithTimeout(url, timeoutMs = 30000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return { text: await res.text(), lastModified: res.headers.get('Last-Modified') };
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
         // Chargement de la liste : cache local immédiat, puis source en direct (relais → accès direct → copie locale)
         async function loadOfficialDatabase() {
             const meta = readDbMeta();
@@ -745,7 +808,7 @@
             // A. Cache local : la recherche fonctionne tout de suite
             const cached = await getCachedRecordsFromIDB();
             if (cached && cached.length >= MIN_EXPECTED_RECORDS) {
-                hydrateMemoryDB(cached, (meta && meta.source) || "Cache local", meta && meta.time, !!(meta && meta.live));
+                hydrateMemoryDB(cached, (meta && meta.source) || "Cache local", meta && meta.time, !!(meta && meta.live), meta && meta.listDate);
                 usingCache = true;
                 // Cache récent ET issu d'une source en direct : inutile de re-télécharger.
                 // Une copie de secours, elle, déclenche toujours une nouvelle tentative en direct.
@@ -755,14 +818,15 @@
             // B. Sources en direct, dans l'ordre
             for (const src of DGAL_SOURCES) {
                 try {
-                    const text = await fetchTextWithTimeout(src.url);
+                    const { text, lastModified } = await fetchListWithTimeout(src.url);
                     const records = parseDgalTxt(text);
                     if (records.length < MIN_EXPECTED_RECORDS) {
                         throw new Error(`fichier inattendu (${records.length} lignes valides)`);
                     }
                     const now = Date.now();
-                    hydrateMemoryDB(records, src.name, now, src.live);
-                    writeDbMeta({ time: now, source: src.name, count: records.length, live: src.live });
+                    const listDate = Date.parse(lastModified || '') || null;
+                    hydrateMemoryDB(records, src.name, now, src.live, listDate);
+                    writeDbMeta({ time: now, source: src.name, count: records.length, live: src.live, listDate });
                     saveRecordsToIDB(records);
                     return;
                 } catch (err) {
@@ -772,11 +836,10 @@
 
             // C. Aucune source joignable
             if (usingCache) {
-                const when = meta && meta.time ? ` du ${new Date(meta.time).toLocaleDateString('fr-FR')}` : '';
-                setDbStatusText(`France : mise à jour impossible, liste enregistrée${when} utilisée (${frRecords.length.toLocaleString('fr-FR')} établissements).`, true);
+                setDbStatusText(listStatusText(frRecords.length, meta && (meta.listDate || meta.time), 'mise à jour impossible'), true);
             } else {
                 dbLoadState = 'failed';
-                setDbStatusText("France : liste officielle indisponible pour le moment.", true);
+                setDbStatusText("Liste indisponible pour le moment.", true);
                 showNotification("Liste officielle française indisponible. Vérifiez la connexion puis rechargez la page.", 'error', false);
             }
         }
@@ -793,16 +856,16 @@
                 itLoadState = 'ready';
                 rebuildIndex();
 
-                let dateTxt = '';
+                let listDate = null;
                 try {
                     const meta = JSON.parse(await fetchTextWithTimeout(IT_META_URL, 10000, 'default'));
-                    if (meta.listDate) dateTxt = ` · liste du ${meta.listDate.slice(0, 10).split('-').reverse().join('/')}`;
+                    if (meta.listDate) listDate = Date.parse(meta.listDate.slice(0, 10)) || null;
                 } catch (e) { /* la date est facultative */ }
-                setItalyStatusText(`Italie : ${records.length.toLocaleString('fr-FR')} établissements (Ministero della Salute${dateTxt})`);
+                setItalyStatusText(listStatusText(records.length, listDate));
             } catch (err) {
                 itLoadState = 'failed';
                 console.warn(`Liste italienne indisponible : ${err.message}`);
-                setItalyStatusText("Italie : liste indisponible pour le moment.", true);
+                setItalyStatusText("Liste indisponible pour le moment.", true);
             }
         }
 
@@ -1034,10 +1097,11 @@
                 btn.className = 'w-full text-left bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50 rounded-xl px-3 py-2 transition active:scale-[0.99]';
                 const name = document.createElement('div');
                 name.className = 'text-xs sm:text-sm font-semibold text-slate-800';
-                name.textContent = etab.raisonSociale || 'Nom non précisé';
+                setOfficialText(name, etab.raisonSociale, 'Nom non précisé');
                 const meta = document.createElement('div');
                 meta.className = 'text-[11px] text-slate-500';
                 meta.textContent = `${etab.numAgrement || etab.cleanCode} · ${placeLine(etab)}`.trim();
+                meta.setAttribute('translate', 'no');
                 btn.append(name, meta);
                 btn.addEventListener('click', () => displayEstablishment(etab, { fromScan }));
                 box.appendChild(btn);
@@ -1069,16 +1133,16 @@
                 displayEstablishment(res.results[0], { fromScan });
             } else if (res.mode === 'multiple') {
                 const more = res.total > res.results.length ? ` (${res.results.length} premiers affichés)` : '';
-                renderCandidates(res.results, { heading: `${res.total} résultats pour « ${query} »${more}`, fromScan });
+                renderCandidates(res.results, { heading: `${data(res.total)} résultats pour « ${data(query)} »${more}`, fromScan });
             } else if (res.mode === 'near') {
                 const heading = query.includes('?')
-                    ? `Lecture partielle (${query}). Est-ce l'un de ces établissements ?`
-                    : `${query} n'existe pas. Vouliez-vous dire :`;
+                    ? `Lecture partielle (${data(query)}). Est-ce l'un de ces établissements ?`
+                    : `${data(query)} n'existe pas. Vouliez-vous dire :`;
                 renderCandidates(res.results, { heading, fromScan, reportLink: fromScan });
             } else if (fromScan) {
                 showScanReport('notfound');
             } else {
-                showNotification(`Aucun établissement pour « ${query} ».`, 'error');
+                showNotification(`Aucun établissement pour « ${data(query)} ».`, 'error');
             }
         }
 
@@ -1150,6 +1214,7 @@
                 const code = document.createElement('span');
                 code.className = "text-slate-400 font-normal";
                 code.textContent = codeText;
+                code.setAttribute('translate', 'no');
                 badge.appendChild(code);
             }
             if (title) badge.title = title;
@@ -1266,16 +1331,16 @@
             const resultCard = document.getElementById('result-card');
             resultCard.classList.remove('hidden');
 
-            document.getElementById('res-raison-sociale').textContent = etab.raisonSociale || 'Nom non précisé';
+            setOfficialText(document.getElementById('res-raison-sociale'), etab.raisonSociale, 'Nom non précisé');
             document.getElementById('res-dept-badge').textContent = `${isIT ? 'Prov.' : 'Dép.'} ${etab.dept || '--'}`;
-            document.getElementById('res-header-city').textContent = placeLine(etab) || (isIT ? 'Italie' : 'France');
+            setOfficialText(document.getElementById('res-header-city'), placeLine(etab), isIT ? 'Italie' : 'France');
             document.getElementById('res-oval-pays').textContent = isIT ? 'ITALIA' : 'FRANCE';
             document.getElementById('res-agrement-ovale').textContent = isIT
                 ? shortCode(etab.numAgrement || etab.cleanCode)
                 : (etab.numAgrement || etab.cleanCode);
             document.getElementById('res-siret-label').textContent = isIT ? 'P. IVA' : 'SIRET';
-            document.getElementById('res-siret-header').textContent = etab.siret || 'Non communiqué';
-            document.getElementById('res-adresse').textContent = etab.adresse || 'Adresse non spécifiée';
+            setOfficialText(document.getElementById('res-siret-header'), etab.siret, 'Non communiqué');
+            setOfficialText(document.getElementById('res-adresse'), etab.adresse, 'Adresse non spécifiée');
             document.getElementById('res-cp-ville').textContent = placeLine(etab);
 
             // Badges d'activités
@@ -1567,7 +1632,7 @@
                 // L'IA n'était pas sûre de tous les caractères : le numéro trouvé peut être celui d'un autre
                 // établissement (un chiffre mal lu qui tombe sur un numéro existant). On le dit.
                 if (st.status === 'exact' && st.reading.lisibilite === 'partielle') {
-                    showNotification(`Lecture incertaine : vérifiez que ${shortCode(st.code)} est bien le numéro de l'emballage.`, 'info', false);
+                    showNotification(`Lecture incertaine : vérifiez que ${data(shortCode(st.code))} est bien le numéro de l'emballage.`, 'info', false);
                 }
             }
         }
@@ -1652,9 +1717,11 @@
                 const code = document.createElement('div');
                 code.className = 'text-xs sm:text-sm font-semibold text-slate-800 font-mono';
                 code.textContent = st.code ? `${stampCountry(st)} ${shortCode(st.code)}` : `Estampille ${i + 1}`;
+                if (st.code) code.setAttribute('translate', 'no');
                 const status = document.createElement('div');
                 status.className = 'text-[11px] truncate ' + (st.status === 'exact' ? 'text-emerald-800' : 'text-slate-500');
                 status.textContent = stampStatusText(st);
+                if (st.status === 'exact') status.setAttribute('translate', 'no'); // nom et commune de l'établissement
                 text.append(code, status);
                 row.appendChild(text);
 
@@ -1694,8 +1761,8 @@
             const code = lastScan.code || '';
             const texts = {
                 unread:    ["Numéro illisible sur cette photo.", "Cadrez l'ovale de plus près, net et bien éclairé."],
-                uncertain: [`Lecture incertaine : « ${code} ».`, "Corrigez le numéro dans le champ de recherche, ou reprenez la photo."],
-                notfound:  [`Le numéro lu, ${code}, n'existe pas dans la liste officielle.`, "Comparez-le à l'emballage et corrigez-le dans le champ de recherche."],
+                uncertain: [`Lecture incertaine : « ${data(code)} ».`, "Corrigez le numéro dans le champ de recherche, ou reprenez la photo."],
+                notfound:  [`Le numéro lu, ${data(code)}, n'existe pas dans la liste officielle.`, "Comparez-le à l'emballage et corrigez-le dans le champ de recherche."],
                 image:     ["Cette image ne peut pas être ouverte.", "Essayez avec une photo au format JPEG ou PNG."],
                 error:     ["La lecture de la photo a échoué.", "Réessayez dans un instant."]
             };
@@ -2035,8 +2102,8 @@
             const fullAddress = fullAddressOf(currentEtab);
             const targetQuery = `${currentEtab.raisonSociale || ''} ${fullAddress}`.trim();
 
-            modalTitle.textContent = currentEtab.raisonSociale || 'Établissement Agréé';
-            modalSubtitle.textContent = fullAddress || (currentEtab.pays === 'IT' ? 'Italie' : 'France');
+            setOfficialText(modalTitle, currentEtab.raisonSociale, 'Établissement Agréé');
+            setOfficialText(modalSubtitle, fullAddress, currentEtab.pays === 'IT' ? 'Italie' : 'France');
             extMapsBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetQuery)}`;
 
             // Google Maps Satellite Embed natif (t=k pour satellite, z=18 pour zoom usine)
