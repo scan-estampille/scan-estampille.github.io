@@ -8,6 +8,6 @@ On peut saisir le numéro, le nom d'une entreprise ou une commune, ou photograph
 
 ## Principes
 
-- **Données officielles** : listes des établissements agréés publiées par les autorités de chaque pays (DGAL pour la France, Ministero della Salute pour l'Italie), mises à jour automatiquement.
+- **Données officielles** : listes des établissements agréés publiées par les autorités de chaque pays, mises à jour automatiquement.
 - **Aucun numéro deviné** : un numéro absent de la liste ou mal lu donne des suggestions, que l'utilisateur choisit lui-même.
 - **Respect de la vie privée** : pas de compte, pas de publicité, pas de cookie. Les recherches tapées restent dans le navigateur ; les photos sont lues par un service d'IA puis ne sont pas conservées.
