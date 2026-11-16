@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan Estampille Sanitaire - Établissement agréé & Traçabilité</title>
-    <meta name="description" content="Lisez l'estampille sanitaire ovale (FR 00.000.000 CE) d'un emballage alimentaire et trouvez l'établissement agréé qui l'a préparé, d'après les listes officielles de la DGAL (France) et du ministère de la Santé (Italie).">
+    <meta name="description" content="Lisez l'estampille sanitaire ovale (FR 00.000.000 CE, IT 0000 CE) d'un emballage alimentaire et trouvez l'établissement agréé qui l'a préparé, d'après les listes officielles de la DGAL (France) et du ministère de la Santé (Italie).">
     <meta name="robots" content="index, follow">
     <meta name="format-detection" content="telephone=no">
     <!-- URL publique du site -->
@@ -27,15 +27,15 @@
     <meta property="og:locale" content="fr_FR">
     <meta property="og:site_name" content="Scan Estampille Sanitaire">
     <meta property="og:title" content="Scan Estampille Sanitaire : qui a préparé ce produit ?">
-    <meta property="og:description" content="Photographiez l'estampille ou saisissez le numéro d'agrément sanitaire d'un emballage et retrouvez l'établissement agréé : nom, adresse, activités. Données officielles (France et Italie).">
+    <meta property="og:description" content="Photographiez ou saisissez le numéro de l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé : nom, adresse, activités. Données officielles (France et Italie).">
     <meta property="og:url" content="https://scan-estampille.github.io/">
     <meta property="og:image" content="https://scan-estampille.github.io/icons/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Estampille sanitaire ovale FRANCE 00.000.000 CE à côté du nom de l'application">
+    <meta property="og:image:alt" content="Estampille ovale FRANCE 00.000.000 CE à côté du nom de l'application">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Scan Estampille Sanitaire : qui a préparé ce produit ?">
-    <meta name="twitter:description" content="Lisez l'estampille sanitaire d'un emballage et retrouvez l'établissement agréé, d'après les listes officielles (France et Italie).">
+    <meta name="twitter:description" content="Lisez l'ovale sanitaire d'un emballage et retrouvez l'établissement agréé, d'après les listes officielles (France et Italie).">
     <meta name="twitter:image" content="https://scan-estampille.github.io/icons/og-image.png">
     <script type="application/ld+json">
     {
@@ -81,7 +81,7 @@
                 <div class="flex items-baseline gap-2 truncate">
                     <h1 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">Scan Estampille Sanitaire</h1>
                     <span class="text-xs text-slate-400 hidden sm:inline">•</span>
-                    <p class="text-xs text-slate-500 truncate hidden sm:inline">Établissements agréés CE 853/2004</p>
+                    <p class="text-xs text-slate-500 truncate hidden sm:inline">Établissements agréés CE (France, Italie, Allemagne)</p>
                 </div>
             </div>
             <!-- Choix de la langue (traduction automatique, voir assets/traduction.js) -->
@@ -108,7 +108,7 @@
                 <h2 class="text-sm font-semibold text-slate-900 text-center leading-snug mb-2">Photographiez l'estampille sanitaire</h2>
                 <!-- Mobile : le texte passe sous le dessin quand il est plus long ; écran large : côte à côte, centrés -->
                 <div class="flow-root sm:flex sm:items-center sm:gap-3">
-                    <svg class="float-left w-[104px] h-[72px] mr-3 mb-1 sm:float-none sm:mr-0 sm:mb-0 sm:shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille sanitaire ovale FR 00.000.000 CE encadrée pour la photo">
+                    <svg class="float-left w-[104px] h-[72px] mr-3 mb-1 sm:float-none sm:mr-0 sm:mb-0 sm:shrink-0" viewBox="0 0 104 72" role="img" aria-label="Emballage alimentaire avec l'estampille ovale FR 00.000.000 CE encadrée pour la photo">
                     <!-- étiquette de l'emballage -->
                     <rect x="1" y="1" width="102" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
                     <rect x="8" y="10" width="20" height="4" rx="2" fill="#cbd5e1"/>
@@ -230,7 +230,7 @@
                         <div class="border-2 border-white/80 rounded-[50%] px-3 py-1 text-center bg-white/5 backdrop-blur-sm shadow-inner">
                             <div id="res-oval-pays" translate="no" class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">FRANCE</div>
                             <div id="res-agrement-ovale" translate="no" class="text-xs sm:text-sm font-black tracking-wider text-white">--</div>
-                            <div class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
+                            <div id="res-oval-mention" translate="no" class="text-[8px] tracking-widest uppercase font-bold text-slate-300 leading-tight">CE</div>
                         </div>
                         <a id="btn-pappers" href="#" target="_blank" rel="noopener noreferrer" title="Fiche Entreprise (Pappers)" aria-label="Voir la fiche entreprise sur Pappers" class="group bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 hover:border-white/40 px-2 py-1.5 rounded-xl text-left flex items-center gap-2 transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
                             <div>
@@ -349,7 +349,7 @@
             <div class="space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
                 <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
                     <h4 class="font-semibold text-amber-900 mb-1">Comment lire le résultat</h4>
-                    <p class="text-amber-900/90">L'estampille sanitaitre ovale identifie l'<strong>établissement agréé</strong> qui a préparé, transformé, conditionné ou stocké le produit en dernier. Ce n'est pas forcément le lieu de production des matières premières, ni le propriétaire de la marque : un même établissement peut fabriquer pour plusieurs marques. Figurer dans la liste ne constitue pas une garantie de conformité. Les données sont celles des fichiers officiels et peuvent être incomplètes ou en retard sur la réalité.</p>
+                    <p class="text-amber-900/90">L'estampille ovale identifie l'<strong>établissement agréé</strong> qui a préparé, transformé, conditionné ou stocké le produit en dernier. Ce n'est pas forcément le lieu de production des matières premières, ni le propriétaire de la marque : un même établissement peut fabriquer pour plusieurs marques. Figurer dans la liste ne constitue pas une garantie de conformité. Les données sont celles des fichiers officiels et peuvent être incomplètes ou en retard sur la réalité.</p>
                 </div>
 
                 <details class="group rounded-xl border border-slate-200">
@@ -366,6 +366,11 @@
                             <p><strong>Italie</strong> : <strong>Ministero della Salute</strong></p>
                             <p id="about-it-count" class="font-medium text-blue-600">Chargement en cours…</p>
                         </div>
+                        <div>
+                            <p><strong>Allemagne</strong> : <strong>Bundesamt für Verbraucherschutz und Lebensmittelsicherheit (BVL)</strong></p>
+                            <p id="about-de-count" class="font-medium text-blue-600">Chargement en cours…</p>
+                            <p class="text-[11px] text-slate-500">Licence Datenlizenz Deutschland – Namensnennung 2.0</p>
+                        </div>
                     </div>
                 </details>
 
@@ -375,7 +380,7 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0 transition-transform group-open:rotate-180"></i>
                     </summary>
                     <div class="px-3 pb-3">
-                        <p>Une IA de lecture d'image repère chaque estampille sanitaire ovale de la photo et lit son numéro. L'application recherche ensuite chaque numéro dans la liste officielle du pays concerné. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
+                        <p>Une IA de lecture d'image repère chaque estampille ovale de la photo et lit son numéro. L'application recherche ensuite chaque numéro dans la liste officielle du pays concerné. <strong>La lecture peut se tromper</strong> : comparez toujours le numéro affiché avec celui de l'emballage et corrigez-le si besoin dans le champ de recherche.</p>
                     </div>
                 </details>
 
@@ -525,11 +530,20 @@
         const IT_META_URL = "./ETAB_AGR_IT.meta.json";
         const IT_MIN_RECORDS = 1000;
 
+        // Liste allemande (BLtU, BVL) : copie hébergée avec l'application,
+        // mise à jour chaque semaine par GitHub Actions (scripts/fetch_de.py + convert_de.py)
+        const DE_LIST_URL = "./ETAB_AGR_DE.txt";
+        const DE_META_URL = "./ETAB_AGR_DE.meta.json";
+        const DE_MIN_RECORDS = 1000;
+        // Codes des Länder, en tête des numéros allemands (« DE BY 12345 EG »)
+        const DE_LAENDER = ['BB', 'BE', 'BW', 'BY', 'HB', 'HE', 'HH', 'MV', 'NI', 'NW', 'RP', 'SH', 'SL', 'SN', 'ST', 'TH'];
+        const DE_CODE_RE = new RegExp(`^(${DE_LAENDER.join('|')})\\d{5}$`);
+
         // Lien de soutien (laisser vide pour masquer le bloc)
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements : identique à VERSION dans sw.js.
-        // À changer à la main à chaque mise en ligne ; le workflow « Mise à jour liste Italie » réécrit les deux.
-        const APP_VERSION = "2026-11-13g";
+        // À changer à la main à chaque mise en ligne ; les workflows de mise à jour des listes réécrivent les deux.
+        const APP_VERSION = "2026-11-16a";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -545,13 +559,15 @@
 
         // Variables d'état
         let etablissementsMap = new Map();   // clé « PAYS:code » -> établissements
-        let allRecordsList = [];             // France + Italie
+        let allRecordsList = [];             // France + Italie + Allemagne
         let frRecords = [];
         let itRecords = [];
+        let deRecords = [];
         let isDbLoaded = false;
         let currentEtab = null;
         let dbLoadState = 'loading'; // France : loading | ready | failed
         let itLoadState = 'loading'; // Italie : loading | ready | failed
+        let deLoadState = 'loading'; // Allemagne : loading | ready | failed
 
         // Défilement doux, sauf si l'utilisateur a demandé à réduire les animations
         const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -593,7 +609,8 @@
             return code.toString()
                 .toUpperCase()
                 .replace(/^(FR|IT)\s*/i, '')
-                .replace(/\s*CE$/i, '')
+                .replace(/^DE[\s.\-]+(?=[A-Z]{2})/i, '')   // « DE BY 12345 » → « BY 12345 »
+                .replace(/\s*(CE|EG)$/i, '')
                 .replace(/[^0-9A-Z]/g, '')
                 .trim();
         }
@@ -613,7 +630,7 @@
 
         // Code court sans préfixe pays, pour l'affichage
         function shortCode(code) {
-            return String(code || '').replace(/^(FR|IT)\s*/i, '');
+            return String(code || '').replace(/^(FR|IT)\s*/i, '').replace(/^DE[\s.\-]+(?=[A-Z]{2})/i, '');
         }
 
         // IndexedDB
@@ -738,6 +755,13 @@
             el.className = "font-medium " + (isError ? "text-red-600" : "text-blue-600");
         }
 
+        function setCountryStatusText(id, text, isError = false) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = "font-medium " + (isError ? "text-red-600" : "text-blue-600");
+        }
+
         function setItalyStatusText(text, isError = false) {
             const el = document.getElementById('about-it-count');
             if (!el) return;
@@ -749,7 +773,7 @@
         // pour qu'un numéro français ne puisse jamais être confondu avec un numéro italien.
         function rebuildIndex() {
             etablissementsMap.clear();
-            allRecordsList = frRecords.concat(itRecords);
+            allRecordsList = frRecords.concat(itRecords, deRecords);
             for (const r of allRecordsList) {
                 if (!r.pays) r.pays = 'FR'; // anciens enregistrements du cache IndexedDB
                 if (!r.searchText) r.searchText = normalizeText(`${r.raisonSociale} ${r.commune} ${r.codePostal}`);
@@ -869,6 +893,30 @@
             }
         }
 
+        // Liste allemande : fichier hébergé avec l'application (mis à jour chaque semaine)
+        async function loadGermanList() {
+            try {
+                const text = await fetchTextWithTimeout(DE_LIST_URL, 60000, 'default');
+                const records = parseDgalTxt(text);
+                if (records.length < DE_MIN_RECORDS) throw new Error(`fichier inattendu (${records.length} lignes valides)`);
+                records.forEach(r => { r.pays = 'DE'; });
+                deRecords = records;
+                deLoadState = 'ready';
+                rebuildIndex();
+
+                let listDate = null;
+                try {
+                    const meta = JSON.parse(await fetchTextWithTimeout(DE_META_URL, 10000, 'default'));
+                    if (meta.listDate) listDate = Date.parse(meta.listDate.slice(0, 10)) || null;
+                } catch (e) { /* la date est facultative */ }
+                setCountryStatusText('about-de-count', listStatusText(records.length, listDate));
+            } catch (err) {
+                deLoadState = 'failed';
+                console.warn(`Liste allemande indisponible : ${err.message}`);
+                setCountryStatusText('about-de-count', "Liste indisponible pour le moment.", true);
+            }
+        }
+
         // === RECHERCHE (début) ===
         function escapeHtml(str) {
             return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -882,8 +930,12 @@
 
         // Pays indiqué au début de la saisie : « IT 2874 », « FR 64.348.100 »… ('' si absent)
         function detectCountry(input) {
-            const m = String(input || '').trim().toUpperCase().match(/^(FR|IT)(?=[\s.\d]|$)/);
-            return m ? m[1] : '';
+            const s = String(input || '').trim().toUpperCase();
+            const m = s.match(/^(FR|IT|DE)(?=[\s.\d\-]|$)/);
+            if (m) return m[1];
+            // Numéro allemand saisi sans « DE » : code du Land + 5 chiffres (« BY 12345 »)
+            if (DE_CODE_RE.test(s.replace(/[\s.\-]/g, '').replace(/(EG)$/, ''))) return 'DE';
+            return '';
         }
 
         // France : au moins 5 chiffres, 6 à 11 caractères (64.348.100).
@@ -892,6 +944,7 @@
             const c = cleanAgrementCode(input);
             const digits = (c.match(/\d/g) || []).length;
             if (pays === 'IT') return /^[0-9A-Z]{3,9}$/.test(c) && digits >= 1;
+            if (pays === 'DE') return DE_CODE_RE.test(c);
             return /^[0-9][0-9A-Z]{5,10}$/.test(c) && digits >= 5;
         }
 
@@ -984,7 +1037,8 @@
 
             const pays = paysHint || detectCountry(q);
             if (pays === 'IT' && !itRecords.length && itLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
-            if (pays !== 'IT' && !frRecords.length && dbLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
+            if (pays === 'DE' && !deRecords.length && deLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
+            if (pays !== 'IT' && pays !== 'DE' && !frRecords.length && dbLoadState === 'loading') return { mode: 'notloaded', results: [], total: 0 };
 
             const asList = (list) => {
                 const total = list.length;
@@ -997,7 +1051,7 @@
 
             // 1. Numéro d'agrément : correspondance exacte uniquement
             if (codeLike) {
-                const exact = (pays ? [pays] : ['FR', 'IT']).flatMap(p => etablissementsMap.get(`${p}:${code}`) || []);
+                const exact = (pays ? [pays] : ['FR', 'IT', 'DE']).flatMap(p => etablissementsMap.get(`${p}:${code}`) || []);
                 if (exact.length) return asList(mergeSameSite(exact));
             }
 
@@ -1023,7 +1077,7 @@
                     if (near.length >= 8) break;
                 }
                 // France : on complète avec les numéros dont seul un segment diffère (souvent le département)
-                if (pays !== 'IT' && near.length < 8) {
+                if (pays !== 'IT' && pays !== 'DE' && near.length < 8) {
                     const seen = new Set(near.map(e => e.numAgrement));
                     for (const e of lookupBySegments(q).results) {
                         if (!seen.has(e.numAgrement)) { near.push(e); seen.add(e.numAgrement); }
@@ -1063,13 +1117,13 @@
             document.getElementById('result-card').classList.add('hidden');
         }
 
-        // France : « 49000 ANGERS » ; Italie : « CHERASCO (CN) » (pas de code postal dans la source)
+        // France et Allemagne : « 49000 ANGERS » ; Italie : « CHERASCO (CN) » (pas de code postal dans la source)
         function placeLine(e) {
             if (e.pays === 'IT') return `${e.commune || ''}${e.dept ? ` (${e.dept})` : ''}`.trim();
             return `${e.codePostal || ''} ${e.commune || ''}`.trim();
         }
         function fullAddressOf(e) {
-            const tail = e.pays === 'IT' ? `${placeLine(e)}, Italia` : placeLine(e);
+            const tail = e.pays === 'IT' ? `${placeLine(e)}, Italia` : (e.pays === 'DE' ? `${placeLine(e)}, Deutschland` : placeLine(e));
             return `${e.adresse || ''} ${tail}`.trim();
         }
 
@@ -1323,6 +1377,8 @@
         function displayEstablishment(etab, { fromScan = false, keepCandidates = false } = {}) {
             currentEtab = etab;
             const isIT = etab.pays === 'IT';
+            const isDE = etab.pays === 'DE';
+            const COUNTRY_LABEL = { FR: 'France', IT: 'Italie', DE: 'Allemagne' };
             hideNotification();
             if (!keepCandidates) hideCandidates();
             hideScanReport();
@@ -1332,10 +1388,13 @@
             resultCard.classList.remove('hidden');
 
             setOfficialText(document.getElementById('res-raison-sociale'), etab.raisonSociale, 'Nom non précisé');
-            document.getElementById('res-dept-badge').textContent = `${isIT ? 'Prov.' : 'Dép.'} ${etab.dept || '--'}`;
-            setOfficialText(document.getElementById('res-header-city'), placeLine(etab), isIT ? 'Italie' : 'France');
-            document.getElementById('res-oval-pays').textContent = isIT ? 'ITALIA' : 'FRANCE';
-            document.getElementById('res-agrement-ovale').textContent = isIT
+            document.getElementById('res-dept-badge').textContent = `${isIT ? 'Prov.' : (isDE ? 'Land' : 'Dép.')} ${etab.dept || '--'}`;
+            setOfficialText(document.getElementById('res-header-city'), placeLine(etab), COUNTRY_LABEL[etab.pays] || 'France');
+            document.getElementById('res-oval-pays').textContent = isIT ? 'ITALIA' : (isDE ? 'DEUTSCHLAND' : 'FRANCE');
+            document.getElementById('res-oval-mention').textContent = isDE ? 'EG' : 'CE';
+            // Allemagne : pas d'identifiant d'entreprise dans la liste officielle
+            document.getElementById('btn-pappers').classList.toggle('hidden', isDE);
+            document.getElementById('res-agrement-ovale').textContent = (isIT || isDE)
                 ? shortCode(etab.numAgrement || etab.cleanCode)
                 : (etab.numAgrement || etab.cleanCode);
             document.getElementById('res-siret-label').textContent = isIT ? 'P. IVA' : 'SIRET';
@@ -1465,12 +1524,12 @@
             if (!isDbLoaded) return { mode: 'notloaded', results: [], total: 0 };
             // France : comparaison segment par segment, qui résiste aux structures abîmées (« ?.?.0/6.006 »)
             // et classe d'abord les numéros dont le département lu est compatible
-            if (pays !== 'IT' && parseFrSegments(numero)) return lookupBySegments(numero);
+            if (pays !== 'IT' && pays !== 'DE' && parseFrSegments(numero)) return lookupBySegments(numero);
             return lookupPatternExact(numero, pays);
         }
 
         function lookupPatternExact(numero, pays) {
-            const pat = numero.toUpperCase().replace(/^(FR|IT)\s*/, '').replace(/\s*CE$/, '').replace(/[^0-9A-Z?]/g, '');
+            const pat = numero.toUpperCase().replace(/^(FR|IT)\s*/, '').replace(/^DE[\s.\-]+(?=[A-Z?]{2})/, '').replace(/\s*(CE|EG)$/, '').replace(/[^0-9A-Z?]/g, '');
             const unknown = (pat.match(/\?/g) || []).length;
             if (!unknown || unknown > 2 || pat.length < (pays === 'IT' ? 4 : 6)) return { mode: 'none', results: [], total: 0 };
             const re = new RegExp('^' + pat.replace(/\?/g, '[0-9A-Z]') + '$');
@@ -1490,7 +1549,7 @@
             if (!code) return { status: 'unreadable', res: null, code: '' };
             const pays = ((r.pays || '') || detectCountry(code)).toUpperCase();
             if (!r.pays && pays) r.pays = pays;
-            if (pays && pays !== 'FR' && pays !== 'IT') return { status: 'foreign', res: null, code };
+            if (pays && !['FR', 'IT', 'DE'].includes(pays)) return { status: 'foreign', res: null, code };
             if (code.includes('?')) {
                 const res = lookupPattern(code, pays || 'FR');
                 return { status: res.mode === 'notloaded' ? 'notloaded' : (res.results.length ? 'near' : 'none'), res, code };
@@ -1509,7 +1568,7 @@
             document.getElementById('scan-status-detail').textContent = detail;
         }
 
-        // 1. L'IA repère chaque estampille sanitaire ovale et lit son numéro, en une seule requête.
+        // 1. L'IA repère chaque ovale et lit son numéro, en une seule requête.
         // 2. Chaque numéro est vérifié dans la liste officielle ; rien n'est jamais deviné.
         async function handleImageFile(file) {
             if (!file) return;
@@ -1522,7 +1581,7 @@
 
             const progressBox = document.getElementById('scan-progress-box');
             const previewImg = document.getElementById('scanned-image-preview');
-            setScanStatus("Recherche des estampilles…", "Repérage des estampilles sur la photo");
+            setScanStatus("Recherche des estampilles…", "Repérage des ovales sur la photo");
             progressBox.classList.remove('hidden');
 
             const started = Date.now();
@@ -1624,7 +1683,7 @@
 
             if (st.status === 'foreign') {
                 const nat = COUNTRY_NAMES[st.reading.pays];
-                showNotification(`Estampille ${nat || 'étrangère'} (${st.reading.pays} ${st.code}) : seules les listes officielles de la France et de l'Italie sont disponibles.`, 'info');
+                showNotification(`Estampille ${nat || 'étrangère'} (${data(`${st.reading.pays} ${st.code}`)}) : ce pays n'est pas encore couvert par l'application.`, 'info');
             } else if (st.status === 'uncertain') {
                 showScanReport('uncertain');
             } else {
@@ -1645,7 +1704,7 @@
                 case 'near': return st.code.includes('?')
                     ? `Lecture partielle · ${n} possibilité${n > 1 ? 's' : ''}`
                     : `Introuvable tel quel · ${n} suggestion${n > 1 ? 's' : ''}`;
-                case 'foreign': return `Établissement hors de France et d'Italie (${st.reading.pays})`;
+                case 'foreign': return `Pays pas encore couvert (${data(st.reading.pays)})`;
                 case 'uncertain': return 'Lecture incertaine';
                 case 'notloaded': return 'Liste en cours de chargement';
                 case 'unreadable': return 'Illisible';
@@ -1760,7 +1819,7 @@
             lastScan.reason = reason;
             const code = lastScan.code || '';
             const texts = {
-                unread:    ["Numéro illisible sur cette photo.", "Cadrez l'estampille de plus près, net et bien éclairé."],
+                unread:    ["Numéro illisible sur cette photo.", "Cadrez l'ovale de plus près, net et bien éclairé."],
                 uncertain: [`Lecture incertaine : « ${data(code)} ».`, "Corrigez le numéro dans le champ de recherche, ou reprenez la photo."],
                 notfound:  [`Le numéro lu, ${data(code)}, n'existe pas dans la liste officielle.`, "Comparez-le à l'emballage et corrigez-le dans le champ de recherche."],
                 image:     ["Cette image ne peut pas être ouverte.", "Essayez avec une photo au format JPEG ou PNG."],
@@ -1836,6 +1895,7 @@
                     source: meta.source || null,
                     etablissements: frRecords.length,
                     etablissementsIT: itRecords.length,
+                    etablissementsDE: deRecords.length,
                     chargeeLe: meta.time ? new Date(meta.time).toISOString() : null
                 },
                 navigateur: navigator.userAgent,
@@ -2103,7 +2163,7 @@
             const targetQuery = `${currentEtab.raisonSociale || ''} ${fullAddress}`.trim();
 
             setOfficialText(modalTitle, currentEtab.raisonSociale, 'Établissement Agréé');
-            setOfficialText(modalSubtitle, fullAddress, currentEtab.pays === 'IT' ? 'Italie' : 'France');
+            setOfficialText(modalSubtitle, fullAddress, { IT: 'Italie', DE: 'Allemagne' }[currentEtab.pays] || 'France');
             extMapsBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetQuery)}`;
 
             // Google Maps Satellite Embed natif (t=k pour satellite, z=18 pour zoom usine)
@@ -2132,6 +2192,7 @@
             }
             loadOfficialDatabase();
             loadItalianList();
+            loadGermanList();
 
             const cameraInput = document.getElementById('camera-input');
             const fileInput = document.getElementById('file-input');
