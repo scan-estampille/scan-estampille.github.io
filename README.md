@@ -1,19 +1,13 @@
-# Estampille Sanitaire CE
+# Scan Estampille Sanitaire
 
 Application web gratuite pour identifier l'établissement qui a fabriqué ou conditionné un produit alimentaire, à partir du numéro inscrit dans l'ovale sanitaire de l'emballage (par exemple « FR 49.099.002 CE »).
 
-**Site : https://scan-estampille.github.io**
+Site : https://scan-estampille.github.io
 
-On peut saisir le numéro, le nom d'une entreprise ou une commune, ou photographier l'estampille. L'application recherche le numéro dans la liste officielle des établissements agréés publiée par la DGAL (ministère de l'Agriculture) et affiche l'établissement, son adresse, ses activités et les espèces travaillées. Elle s'installe sur mobile et la recherche fonctionne hors connexion.
+On peut saisir le numéro, le nom d'une entreprise ou une commune, ou photographier l'estampille. L'application recherche le numéro dans les listes officielles des établissements agréés et affiche l'établissement, son adresse, ses activités et les espèces travaillées. Elle s'installe sur mobile, la recherche fonctionne hors connexion et l'interface peut être traduite dans plusieurs langues.
 
-## Fonctionnement
+## Principes
 
-- **Site statique** hébergé sur GitHub Pages : aucun serveur, aucune base de données, aucun compte utilisateur.
-- **Liste officielle** : le fichier `ETAB_AGR_853.txt` de la DGAL, mis à jour chaque jour dans le dépôt et conservé dans le navigateur (IndexedDB) pour la recherche hors ligne.
-- **Relais Cloudflare** (un worker, hors de ce dépôt) pour trois usages :
-  - `GET /dgal` : relais de la liste officielle, que le Ministère publie sans en-têtes CORS ;
-  - `POST /` : lecture des photos. Le relais repère chaque estampille ovale, lit son numéro et renvoie sa position ; une photo contenant plusieurs estampilles est relue de près ovale par ovale. Services utilisés, dans l'ordre : Groq, puis Cloudflare Workers AI si Groq est saturé, lent ou en échec ;
-  - `POST /contact` : messages à l'auteur, avec photos jointes, transmis par e-mail via Resend.
-- **Règle de lecture** : un numéro n'est jamais deviné. Un numéro absent de la liste ou partiellement lu donne des suggestions que l'utilisateur choisit lui-même.
-
-Les clés des services et l'adresse de l'auteur ne sont jamais dans ce dépôt ni dans le navigateur : elles sont stockées dans les secrets du worker.
+- **Données officielles** : listes des établissements agréés publiées par les autorités de chaque pays (DGAL pour la France, Ministero della Salute pour l'Italie), mises à jour automatiquement.
+- **Aucun numéro deviné** : un numéro absent de la liste ou mal lu donne des suggestions, que l'utilisateur choisit lui-même.
+- **Respect de la vie privée** : pas de compte, pas de publicité, pas de cookie. Les recherches tapées restent dans le navigateur ; les photos sont lues par un service d'IA puis ne sont pas conservées.
