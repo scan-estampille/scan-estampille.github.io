@@ -1,0 +1,69 @@
+name: Mise à jour liste Allemagne
+
+on:
+  schedule:
+    - cron: '30 5 * * 1'    # chaque lundi à 5 h 30 UTC
+  workflow_dispatch:         # bouton « Run workflow » pour lancer à la main
+
+permissions:
+  contents: write
+
+# Groupe commun aux workflows de listes : ils ne poussent jamais en même temps
+concurrency:
+  group: maj-listes
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Installer le navigateur automatique
+        run: |
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+
+      # Le site du BVL n'a pas d'adresse de téléchargement fixe : on clique comme une personne
+      - name: Télécharger la Generalliste (BVL)
+        run: python scripts/fetch_de.py --out generalliste.csv
+
+      - name: Convertir
+        run: python scripts/convert_de.py --input generalliste.csv
+
+      - name: Joindre les captures en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-bltu
+          path: debug/
+          if-no-files-found: ignore
+
+      - name: Enregistrer la liste si elle a changé
+        run: |
+          set -euo pipefail
+          rm -f generalliste.csv
+          if [ -z "$(git status --porcelain ETAB_AGR_DE.txt)" ]; then
+            echo "Liste inchangée."
+            exit 0
+          fi
+
+          # Nouvelle version de l'appli : le service worker et l'appli portent la même valeur
+          V="$(date -u +%Y-%m-%d)-de"
+          sed -i "s/^\(const \)\?VERSION = .*/const VERSION = '$V';/" sw.js
+          sed -i "s/^\(\s*const APP_VERSION = \)\".*\";/\1\"$V\";/" index.html
+          grep -q "VERSION = '$V'" sw.js || { echo "::error::VERSION introuvable dans sw.js"; exit 1; }
+          grep -q "APP_VERSION = \"$V\"" index.html || { echo "::error::APP_VERSION introuvable dans index.html"; exit 1; }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add ETAB_AGR_DE.txt ETAB_AGR_DE.meta.json sw.js index.html
+          git commit -m "MAJ liste Allemagne ($(date -u +%Y-%m-%d))"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push
