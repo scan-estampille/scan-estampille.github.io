@@ -2,7 +2,7 @@ name: Mise à jour liste Italie
 
 on:
   schedule:
-    - cron: '0 5 1 * *'     # le 1er de chaque mois à 5 h UTC
+    - cron: '30 6 * * 1'    # chaque lundi à 6 h 30 UTC
   workflow_dispatch:         # bouton « Run workflow » pour lancer à la main
 
 permissions:
