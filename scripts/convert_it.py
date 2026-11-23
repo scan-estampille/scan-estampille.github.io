@@ -4,8 +4,8 @@ au format CSV de la DGAL : dept, numAgrement, siret(=P.IVA), raisonSociale,
 adresse, codePostal, commune, categorie, activites, especes.
 
 Usage :
-  python scripts/convert_it.py                      # télécharge
-  python scripts/convert_it.py --input page.html    # test local, sans réseau
+  python scripts/convert_it.py --input italie.html  # page enregistrée par fetch_it.py ou par un navigateur
+  python scripts/convert_it.py                      # télécharge directement (souvent bloqué par Gcore)
 """
 import argparse, csv, json, re, sys, time
 import requests
@@ -41,12 +41,22 @@ def download(retries=3):
             html = r.content.decode("cp1252", errors="replace")  # page en ISO-8859-1
             if len(html) > 200_000:
                 return html
-            last = f"réponse trop courte ({len(html)} octets) : anti-robot ou formulaire ?"
+            last = (f"page de vérification Gcore ({len(html)} octets) : utiliser scripts/fetch_it.py"
+                    if "Browser Validation Page" in html
+                    else f"réponse trop courte ({len(html)} octets) : anti-robot ou formulaire ?")
         except requests.RequestException as e:
             last = str(e)
         print(f"Essai {i + 1} échoué : {last}", file=sys.stderr)
         time.sleep(5)
     sys.exit(f"Téléchargement impossible : {last}")
+
+
+def decode(raw):
+    """Page enregistrée par fetch_it.py (UTF-8) ou par « Enregistrer sous » (souvent ISO-8859-1)."""
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw.decode("cp1252", errors="replace")
 
 
 def clean(t):
@@ -112,7 +122,7 @@ def main():
 
     if args.input:
         with open(args.input, "rb") as f:
-            html = f.read().decode("cp1252", errors="replace")
+            html = decode(f.read())
     else:
         html = download()
 
