@@ -1,7 +1,7 @@
 // Service worker de l'application Estampille Sanitaire CE.
 // À CHAQUE mise en ligne, changer VERSION (et APP_VERSION dans index.html, avec la même valeur).
 // Ces deux lignes sont aussi réécrites automatiquement par les workflows de mise à jour des listes.
-const VERSION = '2026-11-23-it';
+const VERSION = '2026-11-23-ui';
 
 const CACHE = `estampille-${VERSION}`;
 

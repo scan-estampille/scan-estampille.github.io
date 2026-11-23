@@ -543,7 +543,7 @@
         const SPONSOR_URL = "https://liberapay.com/Scan-Estampille/";
         // Version affichée dans les signalements : identique à VERSION dans sw.js.
         // À changer à la main à chaque mise en ligne ; les workflows de mise à jour des listes réécrivent les deux.
-        const APP_VERSION = "2026-11-23-it";
+        const APP_VERSION = "2026-11-23-ui";
         // Messages à l'auteur : envoyés par le relais, qui les transmet par e-mail (Resend)
         const CONTACT_URL = `${OCR_PROXY_URL}/contact`;
         const OCR_TIMEOUT_MS = 45000; // le relais peut essayer plusieurs services à la suite
@@ -791,12 +791,14 @@
             isDbLoaded = allRecordsList.length > 0;
         }
 
-        // listDate : date de la liste (en-tête Last-Modified de la source), à défaut date du téléchargement
+        // Date affichée : liste chargée en direct → date de la dernière vérification auprès de la DGAL
+        // (téléchargement réussi) ; copie de secours → date de la liste (Last-Modified), à défaut du téléchargement
         function hydrateMemoryDB(records, sourceName = "DGAL", timestamp = null, live = true, listDate = null) {
             frRecords = records;
             rebuildIndex();
             dbLoadState = 'ready';
-            setDbStatusText(listStatusText(records.length, listDate || timestamp, live ? '' : 'copie de secours'));
+            const shownDate = live ? (timestamp || listDate) : (listDate || timestamp);
+            setDbStatusText(listStatusText(records.length, shownDate, live ? '' : 'copie de secours'));
         }
 
         function readDbMeta() {
@@ -867,7 +869,8 @@
 
             // C. Aucune source joignable
             if (usingCache) {
-                setDbStatusText(listStatusText(frRecords.length, meta && (meta.listDate || meta.time), 'mise à jour impossible'), true);
+                const lastCheck = meta && (meta.live ? meta.time : (meta.listDate || meta.time));
+                setDbStatusText(listStatusText(frRecords.length, lastCheck, 'mise à jour impossible'), true);
             } else {
                 dbLoadState = 'failed';
                 setDbStatusText("Liste indisponible pour le moment.", true);
