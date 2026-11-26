@@ -6,8 +6,13 @@ directement reçoit une « Browser Validation Page » qui exige JavaScript et co
 ouvre donc la page dans Chromium sans écran (Playwright), laisse passer la vérification
 comme le ferait un navigateur ordinaire, puis enregistre le code de la page obtenue.
 
-Il ne fait jamais échouer le workflow : si la vérification n'est pas franchie, il affiche un
-avertissement, n'écrit pas de fichier, et la liste italienne actuelle est conservée.
+La liste fait plusieurs millions de caractères et le serveur l'envoie lentement : la page
+n'est enregistrée qu'une fois entièrement chargée (document.readyState == "complete" et
+taille stable entre deux relevés), pour ne jamais enregistrer un tableau tronqué.
+
+Il ne fait jamais échouer le workflow : si la vérification n'est pas franchie ou si la page
+n'a pas fini de se charger à temps, il affiche un avertissement, n'écrit pas de fichier, et
+la liste italienne actuelle est conservée.
 En cas d'échec, une capture et le code de la page reçue sont enregistrés dans debug/.
 
 Usage :
@@ -70,30 +75,42 @@ def main():
 
         deadline = time.time() + WAIT_SECONDS
         seen_gate = False
+        complete = False
+        last_len = -1
         while time.time() < deadline:
             try:
                 html = page.content()
+                ready = page.evaluate("document.readyState") == "complete"
             except Exception:
-                html = ""   # redirection en cours après la vérification
-            if has_list(html):
-                break
+                html, ready = "", False   # redirection en cours après la vérification
+            if has_list(html) and ready:
+                if len(html) == last_len:   # taille stable sur deux relevés : chargement terminé
+                    complete = True
+                    break
+                last_len = len(html)
+            else:
+                last_len = -1
             if is_gate(html) and not seen_gate:
                 seen_gate = True
                 print("Page de vérification Gcore : attente de la redirection…")
             page.wait_for_timeout(POLL_MS)
 
-        if not has_list(html):
+        if not complete:
             save_debug(page, html)
         browser.close()
 
-    if has_list(html):
+    if complete:
         with open(args.out, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"Liste reçue ({len(html)} caractères){' après la vérification Gcore' if seen_gate else ''}.")
         return
 
-    reason = ("la page de vérification Gcore n'a pas été franchie (navigateur automatique refusé)"
-              if is_gate(html) else f"page inattendue de {len(html)} caractères")
+    if is_gate(html):
+        reason = "la page de vérification Gcore n'a pas été franchie (navigateur automatique refusé)"
+    elif has_list(html):
+        reason = f"chargement de la liste non terminé après {WAIT_SECONDS} s ({len(html)} caractères reçus)"
+    else:
+        reason = f"page inattendue de {len(html)} caractères"
     print(f"Extrait de la page reçue : {excerpt(html)}", file=sys.stderr)
     print(f"::warning title=Liste italienne non mise à jour::{reason}. La liste actuelle est conservée. "
           "Mise à jour manuelle : ouvrir la page dans un navigateur, « Enregistrer sous » "
