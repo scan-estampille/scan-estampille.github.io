@@ -25,7 +25,7 @@ jobs:
       - name: Récupérer le dépôt
         uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -66,10 +66,15 @@ jobs:
             echo "done=non" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          python scripts/convert_it.py --input "$INPUT"
+          # Conversion refusée (baisse suspecte, trop peu de lignes...) : la page reçue est gardée
+          # dans debug/ pour être jointe au run et examinée
+          python scripts/convert_it.py --input "$INPUT" || {
+            mkdir -p debug && cp "$INPUT" debug/
+            exit 1
+          }
           echo "done=oui" >> "$GITHUB_OUTPUT"
 
-      - name: Joindre la page reçue si la vérification n'est pas franchie
+      - name: Joindre la page reçue si la vérification ou la conversion échoue
         if: always() && hashFiles('debug/**') != ''
         uses: actions/upload-artifact@v4
         with:
